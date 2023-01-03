@@ -73,3 +73,6 @@ class QueenPiece:
         self.colour = colour
         self.whiteSymbol = 'q'
         self.blackSymbol = 'Q'
+
+# initialize and print the chessboard
+print(ChessBoard.board)
