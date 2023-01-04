@@ -7,29 +7,6 @@ class ChessBoard:
         # the outer list represents the rows of the board (8 rows)
         # the inner list represents the columns of the board (8 columns)
 
-        # next we initialize the position of the pieces on the board
-        self.board[0][0] = 'R'  # place a rook at the top-left corner
-        self.board[0][1] = 'N'  # place a knight next to the rook
-        self.board[0][2] = 'B'  # place a bishop next to the knight
-        self.board[0][3] = 'Q'  # place the queen on the d-file
-        self.board[0][4] = 'K'  # place the king on the e-file
-        self.board[0][5] = 'B'  # place a bishop next to the king
-        self.board[0][6] = 'N'  # place a knight next to the bishop
-        self.board[0][7] = 'R'  # place a rook at the top-right corner
-        
-        for i in range(8):
-            self.board[1][i] = 'P'  # place pawns on the second row
-            self.board[6][i] = 'p'  # place pawns on the seventh row
-        
-        self.board[7][0] = 'r'  # place a rook at the bottom-left corner
-        self.board[7][1] = 'n'  # place a knight next to the rook
-        self.board[7][2] = 'b'  # place a bishop next to the knight
-        self.board[7][3] = 'q'  # place the queen on the d-file
-        self.board[7][4] = 'k'  # place the king on the e-file
-        self.board[7][5] = 'b'  # place a bishop next to the king
-        self.board[7][6] = 'n'  # place a knight next to the bishop
-        self.board[7][7] = 'r'  # place a rook at the bottom-right corner
-
     # define the method to add a piece
     def addPiece(self,piece,row,column):
         self.board[row][column] = piece
@@ -74,5 +51,28 @@ class QueenPiece:
         self.whiteSymbol = 'q'
         self.blackSymbol = 'Q'
 
-# initialize and print the chessboard
-print(ChessBoard.board)
+gameBoard = ChessBoard()
+
+gameBoard.board[0][0] = RookPiece("WHITE")  # place a rook at the top-left corner
+gameBoard.board[0][1] = KnightPiece("WHITE")  # place a knight next to the rook
+gameBoard.board[0][2] = BishopPiece("WHITE")  # place a bishop next to the knight
+gameBoard.board[0][3] = QueenPiece("WHITE")  # place the queen on the d-tile
+gameBoard.board[0][4] = KingPiece("WHITE")  # place the king on the e-tile
+gameBoard.board[0][5] = BishopPiece("WHITE")  # place a bishop next to the king
+gameBoard.board[0][6] = KnightPiece("WHITE")  # place a knight next to the bishop
+gameBoard.board[0][7] = RookPiece("WHITE")  # place a rook at the top-right corner
+        
+for i in range(8):
+    gameBoard.board[1][i] = PawnPiece("WHITE")  # place pawns on the second row
+    gameBoard.board[6][i] = PawnPiece("BLACK")  # place pawns on the seventh row
+
+gameBoard.board[7][0] = RookPiece("BLACK")  # place a rook at the bottom-left corner
+gameBoard.board[7][1] = KnightPiece("BLACK")  # place a knight next to the rook
+gameBoard.board[7][2] = BishopPiece("BLACK")  # place a bishop next to the knight
+gameBoard.board[7][3] = QueenPiece("BLACK")  # place the queen on the d-tile
+gameBoard.board[7][4] = KingPiece("BLACK")  # place the king on the e-tile
+gameBoard.board[7][5] = BishopPiece("BLACK")  # place a bishop next to the king
+gameBoard.board[7][6] = KnightPiece("BLACK")  # place a knight next to the bishop
+gameBoard.board[7][7] = RookPiece("BLACK")  # place a rook at the bottom-right corner
+
+print(gameBoard.board)
