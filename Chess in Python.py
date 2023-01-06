@@ -11,9 +11,9 @@ class PawnPiece:
     def __init__(self,colour):
         self.colour = colour
 
-    def enumerateMoves(row, column):
+'''    def enumerateMoves(row, column):
         potential_moves = []
-        if self.position == ChessBoard.board[row][column]
+        if self.position == ChessBoard.board[row][column]'''
 
 class RookPiece: 
     def __init__(self,colour):
@@ -35,28 +35,46 @@ class QueenPiece:
     def __init__(self,colour):
         self.colour = colour
 
+  #### I need to fix this. remember: you're assigning instances of each piece to specific variables, and THEN assigning those variables to their starting positions on the gameBoard.board
+   
 gameBoard = ChessBoard()
 
-gameBoard.board[0][0] = RookPiece("WHITE")  # place a rook at the top-left corner
-gameBoard.board[0][1] = KnightPiece("WHITE")  # place a knight next to the rook
-gameBoard.board[0][2] = BishopPiece("WHITE")  # place a bishop next to the knight
-gameBoard.board[0][3] = QueenPiece("WHITE")  # place the queen on the d-tile
-gameBoard.board[0][4] = KingPiece("WHITE")  # place the king on the e-tile
-gameBoard.board[0][5] = BishopPiece("WHITE")  # place a bishop next to the king
-gameBoard.board[0][6] = KnightPiece("WHITE")  # place a knight next to the bishop
-gameBoard.board[0][7] = RookPiece("WHITE")  # place a rook at the top-right corner
+whiteRook1 = RookPiece("WHITE")
+gameBoard.board[0][0] = whiteRook1
+whiteKnight1 = KnightPiece("WHITE")
+gameBoard.board[0][1] = whiteKnight1
+whiteBishop1 =  BishopPiece("WHITE")
+gameBoard.board[0][2] = whiteBishop1
+whiteQueen = QueenPiece("WHITE")
+gameBoard.board[0][3] = whiteQueen
+whiteKing = KingPiece("WHITE")
+gameBoard.board[0][4] = whiteKing
+whiteBishop2 = BishopPiece("WHITE")
+gameBoard.board[0][5] = whiteBishop2
+whiteKnight2 = KnightPiece("WHITE")
+gameBoard.board[0][6] = whiteKnight2
+whiteRook2 = RookPiece("WHITE")
+gameBoard.board[0][7] = whiteRook2
         
 for i in range(8):
-    gameBoard.board[1][i] = PawnPiece("WHITE")  # place pawns on the second row
-    gameBoard.board[6][i] = PawnPiece("BLACK")  # place pawns on the seventh row
+    gameBoard.board[1][i] = PawnPiece("WHITE")
+    gameBoard.board[6][i] = PawnPiece("BLACK")
 
-gameBoard.board[7][0] = RookPiece("BLACK")  # place a rook at the bottom-left corner
-gameBoard.board[7][1] = KnightPiece("BLACK")  # place a knight next to the rook
-gameBoard.board[7][2] = BishopPiece("BLACK")  # place a bishop next to the knight
-gameBoard.board[7][3] = QueenPiece("BLACK")  # place the queen on the d-tile
-gameBoard.board[7][4] = KingPiece("BLACK")  # place the king on the e-tile
-gameBoard.board[7][5] = BishopPiece("BLACK")  # place a bishop next to the king
-gameBoard.board[7][6] = KnightPiece("BLACK")  # place a knight next to the bishop
-gameBoard.board[7][7] = RookPiece("BLACK")  # place a rook at the bottom-right corner
+blackRook1 = RookPiece("BLACK")
+gameBoard.board[7][0] = blackRook1
+blackKnight1 = KnightPiece("BLACK")
+gameBoard.board[7][1] = blackKnight1
+blackBishop1 = BishopPiece("BLACK")
+gameBoard.board[7][2] = blackBishop1
+blackQueen = QueenPiece("BLACK")
+gameBoard.board[7][3] = blackQueen
+blackKing = KingPiece("BLACK")
+gameBoard.board[7][4] = blackKing
+blackBishop2 = BishopPiece("BLACK")
+gameBoard.board[7][5] = blackBishop2
+blackKnight2 = KnightPiece("BLACK")
+gameBoard.board[7][6] = blackKnight2
+blackRook2 = RookPiece("BLACK")
+gameBoard.board[7][7] = blackRook2
 
 print(gameBoard.board)
