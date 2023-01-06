@@ -17,70 +17,63 @@ class Colour(Enum):
 
 @dataclass
 class PawnPiece: 
-    colour: Colour.WHITE or Colour.BLACK
-
+    colour: Colour
 @dataclass
-class RookPiece: 
-    colour: Colour.WHITE or Colour.BLACK
-
+class RookPiece:
+    colour: Colour
 @dataclass
 class KnightPiece: 
-    colour: Colour.WHITE or Colour.BLACK
-
+    colour: Colour
 @dataclass
 class BishopPiece: 
-    colour: Colour.WHITE or Colour.BLACK
-
+    colour: Colour
 @dataclass
 class KingPiece: 
-    colour: Colour.WHITE or Colour.BLACK
-
+    colour: Colour
 @dataclass
 class QueenPiece: 
-    colour: Colour.WHITE or Colour.BLACK
-
-  #### I need to fix this. remember: you're assigning instances of each piece to specific variables, and THEN assigning those variables to their starting positions on the gameBoard.board
-
+    colour: Colour
 
 while True:
     gameBoard = ChessBoard()
 
-    whiteRook1 = RookPiece("WHITE")
+    whiteRook1 = RookPiece(Colour.WHITE)
     gameBoard.board[0][0] = whiteRook1
-    whiteKnight1 = KnightPiece("WHITE")
+    whiteKnight1 = KnightPiece(Colour.WHITE)
     gameBoard.board[0][1] = whiteKnight1
-    whiteBishop1 =  BishopPiece("WHITE")
+    whiteBishop1 =  BishopPiece(Colour.WHITE)
     gameBoard.board[0][2] = whiteBishop1
-    whiteQueen = QueenPiece("WHITE")
+    whiteQueen = QueenPiece(Colour.WHITE)
     gameBoard.board[0][3] = whiteQueen
-    whiteKing = KingPiece("WHITE")
+    whiteKing = KingPiece(Colour.WHITE)
     gameBoard.board[0][4] = whiteKing
-    whiteBishop2 = BishopPiece("WHITE")
+    whiteBishop2 = BishopPiece(Colour.WHITE)
     gameBoard.board[0][5] = whiteBishop2
-    whiteKnight2 = KnightPiece("WHITE")
+    whiteKnight2 = KnightPiece(Colour.WHITE)
     gameBoard.board[0][6] = whiteKnight2
-    whiteRook2 = RookPiece("WHITE")
+    whiteRook2 = RookPiece(Colour.WHITE)
     gameBoard.board[0][7] = whiteRook2
-            
-    for i in range(8):
-        gameBoard.board[1][i] = PawnPiece("WHITE")
-        gameBoard.board[6][i] = PawnPiece("BLACK")
 
-    blackRook1 = RookPiece("BLACK")
+    # I need to figure out how to get pawn's assigned to discrete / distinct variables
+    for i in range(8):
+        gameBoard.board[1][i] = PawnPiece(Colour.WHITE)
+        gameBoard.board[6][i] = PawnPiece(Colour.BLACK)
+
+    blackRook1 = RookPiece(Colour.BLACK)
     gameBoard.board[7][0] = blackRook1
-    blackKnight1 = KnightPiece("BLACK")
+    blackKnight1 = KnightPiece(Colour.BLACK)
     gameBoard.board[7][1] = blackKnight1
-    blackBishop1 = BishopPiece("BLACK")
+    blackBishop1 = BishopPiece(Colour.BLACK)
     gameBoard.board[7][2] = blackBishop1
-    blackQueen = QueenPiece("BLACK")
+    blackQueen = QueenPiece(Colour.BLACK)
     gameBoard.board[7][3] = blackQueen
-    blackKing = KingPiece("BLACK")
+    blackKing = KingPiece(Colour.BLACK)
     gameBoard.board[7][4] = blackKing
-    blackBishop2 = BishopPiece("BLACK")
+    blackBishop2 = BishopPiece(Colour.BLACK)
     gameBoard.board[7][5] = blackBishop2
-    blackKnight2 = KnightPiece("BLACK")
+    blackKnight2 = KnightPiece(Colour.BLACK)
     gameBoard.board[7][6] = blackKnight2
-    blackRook2 = RookPiece("BLACK")
+    blackRook2 = RookPiece(Colour.BLACK)
     gameBoard.board[7][7] = blackRook2
 
     print(gameBoard.board)
