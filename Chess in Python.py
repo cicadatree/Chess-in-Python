@@ -7,49 +7,33 @@ class ChessBoard:
         # the outer list represents the rows of the board (8 rows)
         # the inner list represents the columns of the board (8 columns)
 
-    # define the method to add a piece
-    def addPiece(self,piece,row,column):
-        self.board[row][column] = piece
-    
-    # define the method to remove a piece
-    def removePiece(self,row,column):
-        self.board[row][column] = None
-
 class PawnPiece: 
     def __init__(self,colour):
         self.colour = colour
-        self.whiteSymbol = 'p'
-        self.blackSymbol = 'P'
+
+    def enumerateMoves(row, column):
+        potential_moves = []
+        if self.position == ChessBoard.board[row][column]
 
 class RookPiece: 
     def __init__(self,colour):
         self.colour = colour
-        self.whiteSymbol = 'r'
-        self.blackSymbol = 'R'
 
 class KnightPiece: 
     def __init__(self,colour):
         self.colour = colour
-        self.whiteSymbol = 'n'
-        self.blackSymbol = 'N'
 
 class BishopPiece: 
     def __init__(self,colour):
         self.colour = colour
-        self.whiteSymbol = 'b'
-        self.blackSymbol = 'B'
 
 class KingPiece: 
     def __init__(self,colour):
         self.colour = colour
-        self.whiteSymbol = 'k'
-        self.blackSymbol = 'K'
 
 class QueenPiece: 
     def __init__(self,colour):
         self.colour = colour
-        self.whiteSymbol = 'q'
-        self.blackSymbol = 'Q'
 
 gameBoard = ChessBoard()
 
