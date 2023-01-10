@@ -1,6 +1,8 @@
+# Useful resource: https://www.chessprogramming.org/Main_Page
+
 # large-scale tasks to be completed (as of Jan 8, 2023):
 ## 1. Figure out the actual game engine
-## 2. Figure out how to draw the game in a window
+## 2. Figure out how to draw the game in a window (GUI)
 
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -12,14 +14,13 @@ class Colour(Enum):
     BLACK = auto()
 
     # redefine the __str__ special function to print the Colour.WHITE as "W" and Colour.BLACK as "B" for legibility in the terminal
-    def __str__(self) -> str:
+    def __str__(self):
         if self.value == Colour.WHITE.value:
             return 'W'
         else:
             return 'B'
-
     # you have to explicitly tell python to reassign the new __str__ output as the the __repr__ output for the class
-    # if you do not, it will continue to print the memory address of the given instance of the object
+    # if you do not, it will continue to print the memory address of the given objecft
     __repr__ = __str__
 
 @dataclass
@@ -27,15 +28,13 @@ class Player:
     colour: Colour
 
 class ChessBoard:
-    # define the initial board as a 2D array
-    # board is a list of lists representing the chessboard
-    # '' represents an empty square
+    # define the initial board as a 2D array, where '' represents an empty square
     # the outer list represents the rows of the board (8 rows)
     # the inner list represents the columns of the board (8 columns)
     board = [['' for j in range(8)] for i in range(8)]
 
    # redefine the __str__ special function to print the chess board out with new lines after every outer list element
-    def __str__(self) -> str:
+    def __str__(self):
         ret = ""
         for i in range(8):
             ret = ret + str(self.board[i]) + "\n"
@@ -51,12 +50,11 @@ class Piece:
     # redefine the __str__ special function to print the 
     def __str__(self):
         return str(self.colour) + self.shortName
-
     # you have to explicitly tell python to reassign the new __str__ output as the the __repr__ output for the class
     # if you do not, it will continue to print the memory address of the given instance of the object
     __repr__ = __str__
 
-# this set of classes defines all possible pieces (inheriting attributes from the Piece object)
+# this set of classes define all piece types in chess (inheriting colour, fullName, and shortName attributes from the Piece object)
 class PawnPiece(Piece):
     def __init__(self,colour):
         self.colour = colour
@@ -94,6 +92,9 @@ class GameState:
     gameBoard: ChessBoard
     turnCounter: int = 0
     whichTurn: Colour = Colour.WHITE
+    # gameBoard is a ChessBoard-like object
+    # turnCounter starts on 0 and should increment by 1 at the end of each turn.
+    # whiceColour indicates whose turn it is (starting with White by default)
 
 # assign game to a new instance of the GameState object, and then assign the ChessBoard() object as it's gameBoard
 game = GameState()
@@ -124,6 +125,6 @@ game.gameBoard.board[7][7] = RookPiece(Colour.BLACK)
 while True:
     print("\n")
     print("This game is called chess. There are two players; White (aka W) and Black (aka B). Each player starts with the same number and type of pieces.\n")
-    print("It is " + str(game.whichTurn) + "'s turn" + "\n" + "Here is the game board: \n")
+    print("It is " + str(game.whichTurn) + "'s turn \n" + "Here is the game board: \n")
     print(game.gameBoard)
     break
