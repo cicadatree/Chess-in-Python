@@ -31,9 +31,37 @@ class ChessBoard:
     # define the initial board as a 2D array, where '' represents an empty square
     # the outer list represents the rows of the board (8 rows)
     # the inner list represents the columns of the board (8 columns)
-    board = [['' for j in range(8)] for i in range(8)]
+    board = [['' for j in range(8)] for i in range(8)] 
 
-   # redefine the __str__ special function to print the chess board out with new lines after every outer list element
+    def __init__(self):
+        #assigns each white piece to it's initial position on the board
+        self.board[0][0] = RookPiece(Colour.WHITE)
+        self.board[0][1] = KnightPiece(Colour.WHITE)
+        self.board[0][2] = BishopPiece(Colour.WHITE)
+        self.board[0][3] = QueenPiece(Colour.WHITE)
+        self.board[0][4] = KingPiece(Colour.WHITE)
+        self.board[0][5] = BishopPiece(Colour.WHITE)
+        self.board[0][6] = KnightPiece(Colour.WHITE)
+        self.board[0][7] = RookPiece(Colour.WHITE)
+
+        # assign each pawn to it's initial position on the board
+        for i in range(8):
+            self.board[1][i] = PawnPiece(Colour.WHITE)
+            self.board[6][i] = PawnPiece(Colour.BLACK)
+
+        # assign each black piece to it's initial position on the board
+        self.board[7][0] = RookPiece(Colour.BLACK)
+        self.board[7][1] = KnightPiece(Colour.BLACK)
+        self.board[7][2] = BishopPiece(Colour.BLACK)
+        self.board[7][3] = QueenPiece(Colour.BLACK)
+        self.board[7][4] = KingPiece(Colour.BLACK)
+        self.board[7][5] = BishopPiece(Colour.BLACK)
+        self.board[7][6] = KnightPiece(Colour.BLACK)
+        self.board[7][7] = RookPiece(Colour.BLACK)
+
+
+
+    # redefine the __str__ special function to print the chess board out with new lines after every outer list element
     def __str__(self):
         ret = ""
         for i in range(8):
@@ -42,6 +70,7 @@ class ChessBoard:
 
 # defines the basic concept of a "piece"
 # has a colour (e.g. WHITE), a fullName (e.g. "Rook"), and shortName (e.g. "R")
+'''general question: can the Piece class be an abstract base class??'''
 class Piece:
     colour: Colour
     fullName: str
@@ -89,37 +118,32 @@ class QueenPiece(Piece):
 # GameState stores all relevant attributes of the given game's state.
 # Can even consider adding an attribute that saves the game's current state as an FEN string (https://www.chess.com/terms/fen-chess)
 class GameState:
-    gameBoard: ChessBoard
+    gameBoard: ChessBoard = ChessBoard()
     turnCounter: int = 0
     whichTurn: Colour = Colour.WHITE
     # gameBoard is a ChessBoard-like object
     # turnCounter starts on 0 and should increment by 1 at the end of each turn.
-    # whiceColour indicates whose turn it is (starting with White by default)
+    # whichColour indicates whose turn it is (starting with White by default)
+    def moves(self, gameBoard):
+        for i in range(len(gameBoard)):
+            for j in range(len(gameBoard[i])):
+                if j == PawnPiece:
+                    moves = []
+
+#############################
+### Jimbo says: try moving this logic for creating the board inside the constructor of the ChessBoard class
+### or even better make a function on the class that does the board creation and call that fuction in the constructor of the ChessBoard or the GameState
+### this way the function name can tell you (or another dev) what the block of code inside the function does. this makes for cleaner code with less comments!
+###
+### when writting clean code it can help to think about someone else coming and trying to use this code after you
+### some other dev wont expect to have to set up the pieces themselfs (like you are doing here) they would expect
+### the ChessBoard itself to set itself up by default or to at least have a setup function they could call to
+### Easily put all the pieces in there defalt locations. think about how libaries you consume are organized. and//
+#############################
+
 
 # assign game to a new instance of the GameState object, and then assign the ChessBoard() object as it's gameBoard
 game = GameState()
-game.gameBoard = ChessBoard()
-
-#assigns each piece to a position on the board
-game.gameBoard.board[0][0] = RookPiece(Colour.WHITE)
-game.gameBoard.board[0][1] = KnightPiece(Colour.WHITE)
-game.gameBoard.board[0][2] = BishopPiece(Colour.WHITE)
-game.gameBoard.board[0][3] = QueenPiece(Colour.WHITE)
-game.gameBoard.board[0][4] = KingPiece(Colour.WHITE)
-game.gameBoard.board[0][5] = BishopPiece(Colour.WHITE)
-game.gameBoard.board[0][6] = KnightPiece(Colour.WHITE)
-game.gameBoard.board[0][7] = RookPiece(Colour.WHITE)
-for i in range(8):
-    game.gameBoard.board[1][i] = PawnPiece(Colour.WHITE)
-    game.gameBoard.board[6][i] = PawnPiece(Colour.BLACK)
-game.gameBoard.board[7][0] = RookPiece(Colour.BLACK)
-game.gameBoard.board[7][1] = KnightPiece(Colour.BLACK)
-game.gameBoard.board[7][2] = BishopPiece(Colour.BLACK)
-game.gameBoard.board[7][3] = QueenPiece(Colour.BLACK)
-game.gameBoard.board[7][4] = KingPiece(Colour.BLACK)
-game.gameBoard.board[7][5] = BishopPiece(Colour.BLACK)
-game.gameBoard.board[7][6] = KnightPiece(Colour.BLACK)
-game.gameBoard.board[7][7] = RookPiece(Colour.BLACK)
 
 # main loop
 while True:
