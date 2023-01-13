@@ -1,7 +1,7 @@
 from __future__ import annotations
 from enum import Enum, auto
 
-## Global Variables
+# Global Variables
 emptyCell = ''
 
 # global utlity function to check if the user input is an int between 1 and 8. 
