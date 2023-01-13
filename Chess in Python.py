@@ -3,27 +3,44 @@
 # large-scale tasks to be completed (as of Jan 8, 2023):
 ## 1. Figure out the actual game engine
 ## 2. Figure out how to draw the game in a window (GUI)
+
 from __future__ import annotations
-from dataclasses import dataclass
 from enum import Enum, auto
 
-# global utlity function to check if the user input is 
-def validateInput(message) -> int:
+# global utility function for checking if a piece move is valid
+def askForValidPiece(message) -> Piece:
+    print(message)
+    # ask the user to input the X position for the piece they want to move
+    userInputX = askFor1To8("What is the X? ")-1
+    # ask the user to input the Y position fro the piece they want to move
+    userInputY = askFor1To8("What is the Y? ")-1
+    # assign the piece corresponding to the user's X and Y inputs to a variable called userSelection
+    userSelection = game.gameBoard.getPiece(userInputX,userInputY)
+    # check if the userSelection piece is the same colour as the player making the selection
+    if userSelection.colour == game.whichTurn:
+        # if the piece colour is correct, return the selected piece
+        return userSelection
+    # if the colour is wrong, recursively call this function and tell the user they are an idiot for choosing the wrong-coloured piece. Because they are an idiot and it's important they know it.
+    return askForValidPiece("WRONG COLOUR IDIOT ")
+
+# global utlity function to check if the user input is an int between 1 and 8. 
+# to be used when validating user inputs of board positions for selecting a piece they want to move.
+def askFor1To8(message) -> int:
     # get input from user with message
     userInput = input(message)
     # check if userInput is a string
-    if isinstance(userInput, str):
-        try:
-            int(userInput)
-        except ValueError:
-            userInput = -1
-            pass
+    try:
         userInput = int(userInput)
+    except ValueError:
+        userInput = -1
+        pass
+
     # validate that the userInput is between 1 and 8
-    if userInput < 8 and userInput > 0:
+    if userInput <= 8 and userInput > 0:
         return(userInput)
 
-    validateInput("TRY AGAIN IDIOT ")
+    # recursively return a call of the function if the user input is invalid
+    return askFor1To8("TRY AGAIN IDIOT ")
 
 class Colour(Enum):
     # enumerate white and black
@@ -74,7 +91,7 @@ class ChessBoard:
         self.board[7][7] = RookPiece(Colour.BLACK)
 
     def getPiece(self,x,y) -> Piece:
-        return print(self.board[x][y])
+        return self.board[x][y]
 
     # redefine the __str__ special function to print the chess board out with new lines after every outer list element
     def __str__(self):
@@ -92,7 +109,7 @@ class Piece:
     shortName: str
 
     # redefine the __str__ special function to print the 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.colour) + self.shortName
     # you have to explicitly tell python to reassign the new __str__ output as the the __repr__ output for the class
     # if you do not, it will continue to print the memory address of the given instance of the object
@@ -139,18 +156,17 @@ class GameState:
     # turnCounter starts on 0 and should increment by 1 at the end of each turn.
     # whichColour indicates whose turn it is (starting with White by default)
 
-# assign game to a new instance of the GameState object, and then assign the ChessBoard() object as it's gameBoard
+# assign a new instance of the GameState object to the variable game
 game = GameState()
 
-# main loop
+# Driver code
 while True:
     print("\n")
     print("This game is called chess. There are two players; White (aka W) and Black (aka B). Each player starts with the same number and type of pieces.\n")
-    print("It is " + str(game.whichTurn) + "'s turn \n" + "Here is the game board: \n")
+    print(f"It is {str(game.whichTurn)}'s turn.\n Here is the game board: \n")
+    print(game.gameBoard)
+    userPieceChoice = askForValidPiece(f"It's {str(game.whichTurn)}'s turn")
+    print(f"you selected this piece: {userPieceChoice}")
 
-    userInputX = validateInput("What is the X value for your piece? ")
-    userInputY = validateInput("What is the Y value for your piece? ")
-
-    game.gameBoard.getPiece(userInputX,userInputY)
-
+    # exit out of while loop
     break
