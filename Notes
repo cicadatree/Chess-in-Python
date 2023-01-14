@@ -27,7 +27,18 @@
     - "x" means "takes" or "captures"
     - "file" and "rank" are always from White's point of view
 
-- Of course, using Algebraic Notation for move identification means that, for every move,
+  - Another form of chess notation is Long Algebraic Notation, where:
+    - Both the starting and ending squares are specified, for example: e2e4. Sometimes these
+      are separated by a hyphen, e.g. Nb1-c3, while captures are indicated by an "x", e.g.
+      Rd3xd7.  Long algebraic notation takes more space and is no longer commonly used in
+      print; however, it has the advantage of clarityj
+
+- It might be simpler to code up Long Algebraic Notation first (and then follow that by
+  implementing regular Algebraic Notation), as Long Algebraick Notation doesn't require the
+  program to determine all the potential source squares, since the source square is explicitly
+  specified.
+
+- With full Algebraic Notation for move identification means that, for every move,
   the program will generally have to figure out which piece(s) could potentially move to the
   given target square, as the source square is usually not identified, or only partially
   identified, via its piece or piece+file (Algebraic Notation only identifies source
