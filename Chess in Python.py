@@ -47,27 +47,27 @@ class ChessBoard:
     
     def __init__(self): # initialize the board with Pieces
         #assigns each white piece to it's initial position on the board
-        self.board[0][0] = RookPiece(Colour.WHITE)
-        self.board[0][1] = KnightPiece(Colour.WHITE)
-        self.board[0][2] = BishopPiece(Colour.WHITE)
-        self.board[0][3] = QueenPiece(Colour.WHITE)
-        self.board[0][4] = KingPiece(Colour.WHITE)
-        self.board[0][5] = BishopPiece(Colour.WHITE)
-        self.board[0][6] = KnightPiece(Colour.WHITE)
-        self.board[0][7] = RookPiece(Colour.WHITE)
+        self.board[0][0] = RookPiece(Colour.BLACK)
+        self.board[0][1] = KnightPiece(Colour.BLACK)
+        self.board[0][2] = BishopPiece(Colour.BLACK)
+        self.board[0][3] = QueenPiece(Colour.BLACK)
+        self.board[0][4] = KingPiece(Colour.BLACK)
+        self.board[0][5] = BishopPiece(Colour.BLACK)
+        self.board[0][6] = KnightPiece(Colour.BLACK)
+        self.board[0][7] = RookPiece(Colour.BLACK)
         # assign each pawn to it's initial position on the board
         for i in range(8):
-            self.board[1][i] = PawnPiece(Colour.WHITE)
-            self.board[6][i] = PawnPiece(Colour.BLACK)
+            self.board[1][i] = PawnPiece(Colour.BLACK)
+            self.board[6][i] = PawnPiece(Colour.WHITE)
         # assign each black piece to it's initial position on the board
-        self.board[7][0] = RookPiece(Colour.BLACK)
-        self.board[7][1] = KnightPiece(Colour.BLACK)
-        self.board[7][2] = BishopPiece(Colour.BLACK)
-        self.board[7][3] = QueenPiece(Colour.BLACK)
-        self.board[7][4] = KingPiece(Colour.BLACK)
-        self.board[7][5] = BishopPiece(Colour.BLACK)
-        self.board[7][6] = KnightPiece(Colour.BLACK)
-        self.board[7][7] = RookPiece(Colour.BLACK)
+        self.board[7][0] = RookPiece(Colour.WHITE)
+        self.board[7][1] = KnightPiece(Colour.WHITE)
+        self.board[7][2] = BishopPiece(Colour.WHITE)
+        self.board[7][3] = QueenPiece(Colour.WHITE)
+        self.board[7][4] = KingPiece(Colour.WHITE)
+        self.board[7][5] = BishopPiece(Colour.WHITE)
+        self.board[7][6] = KnightPiece(Colour.WHITE)
+        self.board[7][7] = RookPiece(Colour.WHITE)
     
     def getPiece(self,x,y) -> Piece: # method to find the piece on a specified position of the board
         return self.board[x][y]
