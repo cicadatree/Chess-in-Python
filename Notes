@@ -1,0 +1,98 @@
+- Formatting: Add double space between classes to make it more readable
+
+- Moves:
+  - Moves are generally defined as (source square, target square)
+
+  - The program can figure out which piece is on the source square by looking it up
+    on the game board, and then transferring it to the target square, replacing 
+    any piece that had previously been on the target square (in which case, the
+    source piece takes or captures the target piece)
+
+  - The standard way to identify moves is using Algebraic Notation, and most games
+    are listed using that notation, so the program should use that:
+    - https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
+    - Ex1: e5 (the piece that can move to square "e5" does so)
+    - Ex2: fxe4 (the pawn on file "f" takes the piece on "e4")
+    - Ex3: Rb6 (of all the pieces that could move to "b6", the Rook does so)
+    - Ex4: Bd3xf5 (of all the Bishops that are on the "d" file that could take the
+                   piece on "f5", the Bishop that is on "d3" does so)
+
+  - The general form is:
+    - (piece (source-file (source-rank)?)?)? "x"? target-file target-rank
+  - Where:
+    - "piece" is: {"K", "Q", "R", "B", "N"} for King, Queen, Rook, Bishop and kNight
+      - Pawns are only referred to by position
+    - "file" is: {"a" .. "h"}
+    - "rank" is: {"1" .. "8"}
+    - "x" means "takes" or "captures"
+    - "file" and "rank" are always from White's point of view
+
+  - Another form of chess notation is Long Algebraic Notation, where:
+    - Both the starting and ending squares are specified, for example: e2e4. Sometimes these
+      are separated by a hyphen, e.g. Nb1-c3, while captures are indicated by an "x", e.g.
+      Rd3xd7.  Long algebraic notation takes more space and is no longer commonly used in
+      print; however, it has the advantage of clarityj
+
+- It might be simpler to code up Long Algebraic Notation first (and then follow that by
+  implementing regular Algebraic Notation), as Long Algebraick Notation doesn't require the
+  program to determine all the potential source squares, since the source square is explicitly
+  specified.
+
+- With full Algebraic Notation for move identification means that, for every move,
+  the program will generally have to figure out which piece(s) could potentially move to the
+  given target square, as the source square is usually not identified, or only partially
+  identified, via its piece or piece+file (Algebraic Notation only identifies source
+  pieces/locations to the extent necessary to disambiguate between multiple pieces
+  that could move to the target square, and only identifies the full piece+file+rank when
+  there are two or more similar pieces on the same file that could move to the target).
+
+- So, to figure out which pieces could be moved to the target location, you really need
+  to go through all the pieces on the board (of the colour whose turn it is to move), and
+  determine if each piece could move to the target location, based on the board and the
+  allowed moves for that piece and its location.
+
+- But that ends up being somewhat nontrivial because, for pieces like Rooks, Bishops and
+  Queens, they can move to a number of potential squares along their allowed directions,
+  up until they encounter another piece in each of those paths.  So, for each of those
+  types of pieces, the code needs to identify the allowed directions and, for each of those
+  directions, consider each successive square in that direction to see if it is free, and
+  stop when either the edge of the board has been reached or another piece is encountered.
+  And then if a piece has been encountered, if it is the same colour as the source piece,
+  the path stops before that piece, and if it is the opposite colour, that target piece's
+  square is a potential squre that the source piece could land on.
+
+- So, for each piece of the colour whose turn it is to move:
+    - Identity the piece type
+    - For Kings and Knights:
+      - Generate all the possible locations
+      - Check each location and exclude those that are:
+        - a) off the board
+        - b) occupied by another piece of the source piece's colour
+      - The remaining squares are the allowable squares for that piece
+    - For Bishops, Rooks and Queens:
+      - Determine the allowable directions for the piece
+      - For each of those directions, generate a succession of potentially allowable squares
+        in that direction from the source square
+      - If the potentially allowable square is off the board or occupied by piece of the same
+        colour as the source piece, terminate the search in that direction (and don't add
+        that potentially-allowable square to the list of allowable squares).
+      - If the potentially allowable square is occupied by a piece of the opposite colour,
+        add that square to the list of allowable squares and terminate the search in that
+        direction.
+      - Otherwise add the square to the list of allowable squares and continue the search
+        in that direction.
+      - NOTE: You probably want to have something like an abstract getAllowableSquares()
+        function in the "Piece" class, and then implement that function specifically in each of
+        the specific piece (King, Queen, Bishop, Rook and Knight) subclasses.  Also, since that
+        function is essentially the same implementation for Bishop, Rook and Queen, you might
+        want to have a getAllowableSquaresForDirectionalPieces() utility class that
+        getAllowableSquares() in the King, Bishop and Queen calls, just so you don't have to
+        reimplement it three times.
+
+- At the end of that operation, you should have a full list of allowable squares for every
+  piece of the source colour.  Go through each of those lists of allowable squares to see
+  if any of them match the target square.  If more than one source piece matches, use the
+  disambiguating identifiers (piece, piece+file or piece+file+rank) to determine which
+  of those pieces the move refers to.
+
+- Ok, now try coding that up and see how far you get :)

@@ -47,35 +47,41 @@ class ChessBoard:
     
     def __init__(self): # initialize the board with Pieces
         #assigns each white piece to it's initial position on the board
-        self.board[0][0] = RookPiece(Colour.WHITE)
-        self.board[0][1] = KnightPiece(Colour.WHITE)
-        self.board[0][2] = BishopPiece(Colour.WHITE)
-        self.board[0][3] = QueenPiece(Colour.WHITE)
-        self.board[0][4] = KingPiece(Colour.WHITE)
-        self.board[0][5] = BishopPiece(Colour.WHITE)
-        self.board[0][6] = KnightPiece(Colour.WHITE)
-        self.board[0][7] = RookPiece(Colour.WHITE)
+        self.board[0][0] = RookPiece(Colour.BLACK)
+        self.board[0][1] = KnightPiece(Colour.BLACK)
+        self.board[0][2] = BishopPiece(Colour.BLACK)
+        self.board[0][3] = QueenPiece(Colour.BLACK)
+        self.board[0][4] = KingPiece(Colour.BLACK)
+        self.board[0][5] = BishopPiece(Colour.BLACK)
+        self.board[0][6] = KnightPiece(Colour.BLACK)
+        self.board[0][7] = RookPiece(Colour.BLACK)
         # assign each pawn to it's initial position on the board
         for i in range(8):
-            self.board[1][i] = PawnPiece(Colour.WHITE)
-            self.board[6][i] = PawnPiece(Colour.BLACK)
+            self.board[1][i] = PawnPiece(Colour.BLACK)
+            self.board[6][i] = PawnPiece(Colour.WHITE)
         # assign each black piece to it's initial position on the board
-        self.board[7][0] = RookPiece(Colour.BLACK)
-        self.board[7][1] = KnightPiece(Colour.BLACK)
-        self.board[7][2] = BishopPiece(Colour.BLACK)
-        self.board[7][3] = QueenPiece(Colour.BLACK)
-        self.board[7][4] = KingPiece(Colour.BLACK)
-        self.board[7][5] = BishopPiece(Colour.BLACK)
-        self.board[7][6] = KnightPiece(Colour.BLACK)
-        self.board[7][7] = RookPiece(Colour.BLACK)
+        self.board[7][0] = RookPiece(Colour.WHITE)
+        self.board[7][1] = KnightPiece(Colour.WHITE)
+        self.board[7][2] = BishopPiece(Colour.WHITE)
+        self.board[7][3] = QueenPiece(Colour.WHITE)
+        self.board[7][4] = KingPiece(Colour.WHITE)
+        self.board[7][5] = BishopPiece(Colour.WHITE)
+        self.board[7][6] = KnightPiece(Colour.WHITE)
+        self.board[7][7] = RookPiece(Colour.WHITE)
     
     def getPiece(self,x,y) -> Piece: # method to find the piece on a specified position of the board
         return self.board[x][y]
     
     def __str__(self): # redefine the __str__ special function to print the chess board out with new lines after every outer list element
         ret = ""
+
         for i in range(8):
-            ret = ret + str(self.board[i]) + "\n"
+            str_squares = (str(x) for x in self.board[i])
+            fixed_str_squares = (y if y != "" else "''" for y in str_squares)
+            line = " ".join(fixed_str_squares)
+            ret = ret + str(8-i) + " " + line + "\n"
+
+        ret = ret + "  " + "  ".join(["a", "b", "c", "d", "e", "f", "g", "h"]) + "\n"
         return ret
 
 class Piece: # defines the basic attributes of a Piece object
