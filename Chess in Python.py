@@ -1,33 +1,66 @@
 from __future__ import annotations
 from enum import Enum, auto
+import re
 
 # Global Variables
 emptyCell = ''
 
-# global utlity function to check if the user input is an int between 1 and 8. 
-# to be used when validating user inputs of board positions for selecting a piece they want to move.
-def askFor1To8(message) -> int:  # get input from user with message
-    userInput = input(message) # check if userInput is a string; pass if the ValueError is thrown
-    try:
-        userInput = int(userInput)
-    except ValueError:
-        userInput = -1
-        pass
-    if userInput <= 8 and userInput > 0: # validate that the userInput is between 1 and 8
-        return(userInput)
-    return askFor1To8("Try again ") # recursively return a call of the function if the user input is invalid
+# Regular Expression for valid moves:
+#   (letter-from-a-to-h) (number-from-1-to-8) hyphen (letter-from-a-to-h) (number-from-1-to-8)
+# (the parentheses around each letter and number capture it in a capture group)
+# So, if there's a match, the capture groups will be:
+#   source_file = match.group(1)
+#   source_rank = match.group(2)
+#   dest_file = match.group(3)
+#   dest_rank = match.group(4)
+longNotationPattern = "^([a-h])([1-8])-([a-h])([1-8])$"
 
-# global utility function for checking if a piece move is valid
-def askForValidPiece(message) -> Piece:
+
+class SquareLocation:
+    file: int
+    rank: int
+    file_codes = ["a", "b", "c", "d", "e", "f", "g", "h"]
+
+    def __init__(self, file, rank):
+        self.file = ord(file) - ord("a")
+        self.rank = int(rank) - 1
+
+    def __str__(self):
+        return f"{str(self.file_codes[self.file])}{str(self.rank + 1)}"
+
+    def getXY(self):
+        return (7 - self.rank, self.file)
+
+
+# Global utility function for checking if a piece move is valid
+def askForMove(message) -> (SquareLocation, SquareLocation):
     print(message) # ask the user to input the X position for the piece they want to move
-    userInputX = askFor1To8("What is the X? ")-1 # ask the user to input the Y position fro the piece they want to move
-    userInputY = askFor1To8("What is the Y? ")-1 # assign the piece corresponding to the user's X and Y inputs to a variable called userSelection
-    userSelection = game.gameBoard.getPiece(userInputX,userInputY) # check if the userSelection piece is the same colour as the player making the selection
-    if userSelection.colour == game.whichTurn: # if the piece colour is correct, return the selected piece
-        return userSelection
-    if userSelection == emptyCell: # check if userSelection is a Piece (vs an empty board position):
-        return askForValidPiece("")
-    return askForValidPiece("Wrong colour, try again ") # if the colour is wrong, recursively call this function and tell the user they are an idiot for choosing the wrong-coloured piece. Because they are an idiot and it's important they know it.
+    gotValidMove = False
+    while not gotValidMove:
+        userInput = input("Enter desired move Long Chess Notation (eg., b4-c5): ")
+        # Validate and parse the user input
+        match = re.search(longNotationPattern, userInput)
+        if not match:
+            print("Incorrect syntax -- try again")
+            continue
+
+        # Get the X/Y of the source and destination
+        source_location = SquareLocation(match.group(1), match.group(2))
+        dest_location = SquareLocation(match.group(3), match.group(4))
+
+        # Check if the userSelection piece is the same colour as the player making the selection
+        userSelection = game.gameBoard.getPiece(*(source_location.getXY()))
+        if userSelection.colour == game.whichTurn:
+            # if the piece colour is correct, return the move
+            return (source_location, dest_location)
+
+        # check if userSelection is a Piece (vs an empty board position):
+        if userSelection == emptyCell:
+            print("Source square does not contain a piece - try again")
+
+        # if the colour is wrong - let the user know, but do not tell them they are an idiot!
+        print(f"{str(userSelection)} - Wrong colour - try again ")
+
 
 class Colour(Enum):
     # enumerate white and black
@@ -138,7 +171,10 @@ while True: # Driver code
     print("This game is called chess. There are two players; White (aka W) and Black (aka B). Each player starts with the same number and type of pieces.\n")
     print(f"It is {str(game.whichTurn)}'s turn.\n Here is the game board: \n")
     print(game.gameBoard)
-    userPieceChoice = askForValidPiece(f"It's {str(game.whichTurn)}'s turn") # ask the player for the x and y values of the piece which they'd like to move.
-    print(f"you selected this piece: {userPieceChoice}")
+
+    # ask the player for the x and y values of the piece which they'd like to move from and to.
+    move = askForMove(f"It's {str(game.whichTurn)}'s turn")
+    userSelection = game.gameBoard.getPiece(*(move[0].getXY()))
+    print(f"you selected this move: {str(userSelection)} {str(move[0])}-{str(move[1])}")
 
     break    # exit out of the Driver code
