@@ -67,7 +67,7 @@ class ChessBoard:
 
     def __str__(self): # redefine the __str__ special function to print the chess board out with new lines after every outer list element
         ret = ""
-
+        
         for i in range(8):
             str_squares = (str(x) for x in self.board[i])
             fixed_str_squares = (y if y != "" else "''" for y in str_squares)
