@@ -11,7 +11,7 @@ emptyCell = ''  # represents an empty board position
 #   source_rank = match.group(2)
 #   dest_file = match.group(3)
 #   dest_rank = match.group(4)
-longNotationPattern = "^([a-h])([1-8])-([a-h])([1-8])$"
+longNotationPattern = "^([a-h])([1-8])-([a-h])([1-8])$" 
 
 # global utility function for checking if a piece move is valid
 def askForMove(message) -> (SquareLocation, SquareLocation):
@@ -33,6 +33,7 @@ def askForMove(message) -> (SquareLocation, SquareLocation):
         # Check if the userSelection piece is the same colour as the player making the selection
         userSelection = game.gameBoard.getPiece(*(source_location.getXY()))
         if userSelection.colour == game.whichTurn:
+            game.gameBoard
             # if the piece colour is correct, return the move
             return (source_location, dest_location)
 
@@ -47,19 +48,39 @@ def askForMove(message) -> (SquareLocation, SquareLocation):
 class Colour(Enum):  # enumerate white and black
     WHITE = auto()
     BLACK = auto()
+    UNDEF = auto()
 
     def __str__(self):  # redefine the __str__ special function to print the Colour.WHITE as "W" and Colour.BLACK as "B" for legibility in the terminal
         if self.value == Colour.WHITE.value:
             return 'W'
-        else:
+        elif self.value == Colour.BLACK.value:
             return 'B'
+        else:
+            return ''
+        
 
     __repr__ = __str__
 
 
+class Piece:
+    def __init__(self, colour, pieceType):
+        self.colour = colour
+        self.pieceType = pieceType
+
+    def getColour(self):
+        return self.colour
+
+    def __str__(self) -> str:  # redefine the __str__ special function to print the
+        return str(self.colour) + self.pieceType
+    __repr__ = __str__
+
+class EmptySquare(Piece):
+    def __init__(self):
+        super().__init__(Colour.UNDEF,"''")
+
 class ChessBoard:
     # define the initial board as a 2D array, where '' represents an empty square
-    board = [[emptyCell for j in range(8)] for i in range(8)]
+    board = [[EmptySquare() for j in range(8)] for i in range(8)]
 
     def __init__(self):  # initialize the board with Pieces
         # assigns each white piece to it's initial position on the board
@@ -88,6 +109,26 @@ class ChessBoard:
     # method to find the piece on a specified position of the board
     def getPiece(self, x, y) -> Piece:
         return self.board[x][y]
+
+    def getAllowableMoves(self, x, y):
+        if type(self.getPiece(x,y)) == KnightPiece:
+            # list of all possible moves
+            destinationSquares = [(x+1,y+2),(x-1,y+2),(x+1,y-2),(x-1,y-2),(x+2,y+1),(x-2,y+1),(x+2,y-1),(x-2,y-1)]
+            # list of all moves that are legal inside the board
+            inBoundsDestinationSquares = filter(lambda i : (i[0] >= 0 and i[0] <= 7) and (i[1] >= 0 and i[1] <= 7), destinationSquares)
+    
+            validDestinationSquares = []
+            # list of all valid moves for the piece itself
+            for i in list(inBoundsDestinationSquares):
+                w = self.board[i[0]][i[1]]
+                z = w.getColour()
+                y = game.whichTurn
+                print(str(type(w)))
+                if isinstance(w,EmptySquare):
+                    validDestinationSquares.append(i)
+                elif z != y:
+                    validDestinationSquares.append(i)
+            return validDestinationSquares
 
     def __str__(self):  # redefine the __str__ special function to print the chess board out with new lines after every outer list element
         ret = ""
@@ -119,55 +160,34 @@ class SquareLocation:
         return (7 - self.rank, self.file)
 
 
-class Piece:
-    colour: Colour
-    pieceType: str
-
-    def getAllowableSquares(self) -> bool:
-        return True
-
-    def getAllowableDirectionalSquares(self) -> bool:
-        return True
-
-    def __str__(self) -> str:  # redefine the __str__ special function to print the
-        return str(self.colour) + self.pieceType
-    __repr__ = __str__
-
-
 class PawnPiece(Piece):
     def __init__(self, colour):
-        self.colour = colour
-        self.pieceType = "P"
+        super().__init__(colour, "P")
 
 
 class RookPiece(Piece):
     def __init__(self, colour):
-        self.colour = colour
-        self.pieceType = "R"
+        super().__init__(colour, "R")
 
 
 class KnightPiece(Piece):
     def __init__(self, colour):
-        self.colour = colour
-        self.pieceType = "N"
+        super().__init__(colour, "N")
 
 
 class BishopPiece(Piece):
     def __init__(self, colour):
-        self.colour = colour
-        self.pieceType = "B"
+        super().__init__(colour, "B")
 
 
 class KingPiece(Piece):
     def __init__(self, colour):
-        self.colour = colour
-        self.pieceType = "K"
+        super().__init__(colour, "K")
 
 
 class QueenPiece(Piece):
     def __init__(self, colour):
-        self.colour = colour
-        self.pieceType = "Q"
+        super().__init__(colour, "Q")
 
 
 class GameState:
@@ -177,17 +197,32 @@ class GameState:
     # whichColour indicates whose turn it is (starting with White by default)
     whichTurn: Colour = Colour.WHITE
 
+    def moveToNextTurn(self):
+        self.turnCounter += 1
+        if game.turnCounter % 2 == 0:
+            game.whichTurn = Colour.WHITE
+        else:
+            game.whichTurn = Colour.BLACK
+
 
 game = GameState()
 
-while True:
-    print("\n")
-    print("This game is called chess. There are two players; White (aka W) and Black (aka B). Each player starts with the same number and type of pieces.\n")
-    print(f"It is {str(game.whichTurn)}'s turn.\n Here is the game board: \n")
-    print(game.gameBoard)
-    # ask the player for the x and y values of the piece which they'd like to move from and to.
-    move = askForMove(f"It's {str(game.whichTurn)}'s turn")
-    userSelection = game.gameBoard.getPiece(*(move[0].getXY()))
-    print(f"you selected this move: {str(userSelection)} {str(move[0])}-{str(move[1])}")
+def main():
+    while True:
+        print("\n")
+        print("Here is the game board: \n")
+        print(game.gameBoard)
+        # ask the player for the x and y values of the piece which they'd like to move from and to.
+        move = askForMove(f"It's {str(game.whichTurn)}'s turn")
+        # userSelection gives you the piece at the user's selected source square
+        userSelection = game.gameBoard.getPiece(*(move[0].getXY()))
+        print(f"you selected this move: {str(userSelection)} {str(move[0])}-{str(move[1])}")
+        validSquares = game.gameBoard.getAllowableMoves(*(move[0].getXY()))
+        print(str(validSquares))
 
-    break    # exit out of the Driver code
+
+        game.moveToNextTurn()
+        continue
+
+if __name__ == "__main__":
+    main()
