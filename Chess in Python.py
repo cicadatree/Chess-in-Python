@@ -116,19 +116,9 @@ class ChessBoard:
             destinationSquares = [(x+1,y+2),(x-1,y+2),(x+1,y-2),(x-1,y-2),(x+2,y+1),(x-2,y+1),(x+2,y-1),(x-2,y-1)]
             # list of all moves that are legal inside the board
             inBoundsDestinationSquares = filter(lambda i : (i[0] >= 0 and i[0] <= 7) and (i[1] >= 0 and i[1] <= 7), destinationSquares)
-    
-            validDestinationSquares = []
-            # list of all valid moves for the piece itself
-            for i in list(inBoundsDestinationSquares):
-                w = self.board[i[0]][i[1]]
-                z = w.getColour()
-                y = game.whichTurn
-                print(str(type(w)))
-                if isinstance(w,EmptySquare):
-                    validDestinationSquares.append(i)
-                elif z != y:
-                    validDestinationSquares.append(i)
-            return validDestinationSquares
+            # list of all in-bounds moves that are moving into an EmptySquare not already occupied by another piece of the same colour
+            validInBoundsDestinationSquares = filter(lambda i : (isinstance(self.board[i[0]][i[1]], EmptySquare)) and (self.board[i[0]][i[1]].getColour() != game.whichTurn), inBoundsDestinationSquares)
+            return validInBoundsDestinationSquares
 
     def __str__(self):  # redefine the __str__ special function to print the chess board out with new lines after every outer list element
         ret = ""
@@ -204,7 +194,6 @@ class GameState:
         else:
             game.whichTurn = Colour.BLACK
 
-
 game = GameState()
 
 def main():
@@ -212,13 +201,19 @@ def main():
         print("\n")
         print("Here is the game board: \n")
         print(game.gameBoard)
-        # ask the player for the x and y values of the piece which they'd like to move from and to.
+        # move stores the (SquareLocation, SquareLocation) representing the user's move
         move = askForMove(f"It's {str(game.whichTurn)}'s turn")
-        # userSelection gives you the piece at the user's selected source square
-        userSelection = game.gameBoard.getPiece(*(move[0].getXY()))
-        print(f"you selected this move: {str(userSelection)} {str(move[0])}-{str(move[1])}")
-        validSquares = game.gameBoard.getAllowableMoves(*(move[0].getXY()))
-        print(str(validSquares))
+        # validateMoves is a list of all valid moves for piece the user is moving
+        validateMoves = game.gameBoard.getAllowableMoves(*(move[0].getXY()))
+       # if the desired destination square is in the the list of validatedMoves, then finish the move
+        if move[1].getXY() in validateMoves:
+            # remove the piece from it's source location (replacing it with an EmptySquare instance)
+            game.gameBoard.board[move[0].getXY()[0]][move[0].getXY()[1]] = EmptySquare()
+
+            # TODO complete the move of the piece to the validatedDestinationSquare
+
+            print(str(move[1].getXY()))
+
 
 
         game.moveToNextTurn()
