@@ -1,6 +1,7 @@
 from __future__ import annotations
 from enum import Enum, auto
 import re
+import typing
 
 emptyCell = ''  # represents an empty board position
 # Regular Expression for valid moves:
@@ -14,7 +15,7 @@ emptyCell = ''  # represents an empty board position
 longNotationPattern = "^([a-h])([1-8])-([a-h])([1-8])$" 
 
 # global utility function for checking if a piece move is valid
-def askForMove(message) -> (SquareLocation, SquareLocation):
+def askForMove(message) -> typing.Tuple[SquareLocation, SquareLocation]:
     # ask the user to input the X position for the piece they want to move
     print(message)
     gotValidMove = False
@@ -74,9 +75,11 @@ class Piece:
         return str(self.colour) + self.pieceType
     __repr__ = __str__
 
+
 class EmptySquare(Piece):
     def __init__(self):
         super().__init__(Colour.UNDEF,"''")
+
 
 class ChessBoard:
     # define the initial board as a 2D array, where '' represents an empty square
@@ -105,10 +108,30 @@ class ChessBoard:
         self.board[7][5] = BishopPiece(Colour.WHITE)
         self.board[7][6] = KnightPiece(Colour.WHITE)
         self.board[7][7] = RookPiece(Colour.WHITE)
-
+    
     # method to find the piece on a specified position of the board
     def getPiece(self, x, y) -> Piece:
         return self.board[x][y]
+
+    def adNauseum(self,x,y,gameboard,colour,intervals):
+            # repeats the given interval until another piece is run into.
+            # if that piece is not the same colour, that square is added and 
+            # then the list is returned
+            answers = []
+
+            for xint, yint in intervals:
+                xtemp, ytemp = x+xint, y+yint
+                while self.getAllowableMoves(xtemp, ytemp):
+                    target = gameboard.get((xtemp,ytemp),None)
+                    if target is None: answers.append((xtemp,ytemp))
+                    elif target.getColour() != colour:
+                        answers.append((xtemp,ytemp))
+                        break
+                    else:
+                        break
+
+                xtemp,ytemp = xtemp+xint,ytemp+yint
+            return answers
 
     def getAllowableMoves(self, x, y):
         if type(self.getPiece(x,y)) == KnightPiece:
@@ -146,7 +169,7 @@ class SquareLocation:
     def __str__(self):
         return f"{str(self.file_codes[self.file])}{str(self.rank + 1)}"
 
-    def getXY(self) -> (int,int):
+    def getXY(self) -> typing.Tuple[int, int]:
         return (7 - self.rank, self.file)
 
 
@@ -205,17 +228,13 @@ def main():
         move = askForMove(f"It's {str(game.whichTurn)}'s turn")
         # validateMoves is a list of all valid moves for piece the user is moving
         validateMoves = game.gameBoard.getAllowableMoves(*(move[0].getXY()))
-       # if the desired destination square is in the the list of validatedMoves, then finish the move
+        # if the desired destination square is in the the list of validatedMoves, then finish the move
         if move[1].getXY() in validateMoves:
-            # remove the piece from it's source location (replacing it with an EmptySquare instance)
+            # move the piece on the user's source sqare (move[0]) to the user's destination square (move[1])
+            game.gameBoard.board[move[1].getXY()[0]][move[1].getXY()[1]] = game.gameBoard.board[move[0].getXY()[0]][move[0].getXY()[1]]
+            # remove the piece from it's source square (replacing the source square with an EmptySquare instance)
             game.gameBoard.board[move[0].getXY()[0]][move[0].getXY()[1]] = EmptySquare()
-
-            # TODO complete the move of the piece to the validatedDestinationSquare
-
-            print(str(move[1].getXY()))
-
-
-
+        # switch sides before moving to the next turn
         game.moveToNextTurn()
         continue
 
