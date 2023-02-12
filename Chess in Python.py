@@ -32,7 +32,7 @@ def askForMove(message) -> typing.Tuple[SquareLocation, SquareLocation]:
         dest_location = SquareLocation(match.group(3), match.group(4))
 
         # Check if the userSelection piece is the same colour as the player making the selection
-        userSelection = game.gameBoard.getPiece(*(source_location.getXY()))
+        userSelection = game.gameBoard.getPiece(source_location)
         if userSelection.colour == game.whichTurn:
             game.gameBoard
             # if the piece colour is correct, return the move
@@ -45,6 +45,34 @@ def askForMove(message) -> typing.Tuple[SquareLocation, SquareLocation]:
         # if the colour is wrong - let the user know, but do not tell them they are an idiot!
         print(f"{str(userSelection)} - Wrong colour - try again ")
 
+
+class SquareLocation:
+    file: int
+    rank: int
+    file_codes = ["a", "b", "c", "d", "e", "f", "g", "h"]
+
+    def __init__(self, file="a", rank=0):
+        self.file = ord(file) - ord("a")
+        self.rank = int(rank) - 1
+
+    def __str__(self):
+        return f"{str(self.file_codes[self.file])}{str(self.rank + 1)}"
+
+    def setByXY(self, x, y):
+        self.file = x
+        self.rank = y
+
+    def getXY(self) -> typing.Tuple[int, int]:
+        return (7 - self.rank, self.file)
+
+    def get_x(self) -> int:
+        return (7 - self.rank)
+    
+    def get_y(self) -> int:
+        return (self.file)
+
+    x = property(get_x)
+    y = property(get_y)
 
 class Colour(Enum):  # enumerate white and black
     WHITE = auto()
@@ -64,21 +92,39 @@ class Colour(Enum):  # enumerate white and black
 
 
 class Piece:
-    def __init__(self, colour, pieceType):
+    def __init__(self, colour, location):
         self.colour = colour
-        self.pieceType = pieceType
+        self.location = location
+
+    def __str__(self) -> str:  # redefine the __str__ special function to print the
+        return str(self.colour) + self.getPieceType()
 
     def getColour(self):
         return self.colour
 
-    def __str__(self) -> str:  # redefine the __str__ special function to print the
-        return str(self.colour) + self.pieceType
+    def getPieceType(self):
+        if type(self) == PawnPiece:
+            return "P"
+        elif type(self) == KnightPiece:
+            return "N"
+        elif type(self) == RookPiece:
+            return "R"
+        elif type(self) == QueenPiece:
+            return "Q"
+        elif type(self) == KingPiece:
+            return "K"
+        elif type(self) == BishopPiece:
+            return "B"
+        else:
+            return "''"
+
+
     __repr__ = __str__
 
 
 class EmptySquare(Piece):
     def __init__(self):
-        super().__init__(Colour.UNDEF,"''")
+        super().__init__(Colour.UNDEF, SquareLocation())
 
 
 class ChessBoard:
@@ -87,54 +133,48 @@ class ChessBoard:
 
     def __init__(self):  # initialize the board with Pieces
         # assigns each white piece to it's initial position on the board
-        self.board[0][0] = RookPiece(Colour.BLACK)
-        self.board[0][1] = KnightPiece(Colour.BLACK)
-        self.board[0][2] = BishopPiece(Colour.BLACK)
-        self.board[0][3] = QueenPiece(Colour.BLACK)
-        self.board[0][4] = KingPiece(Colour.BLACK)
-        self.board[0][5] = BishopPiece(Colour.BLACK)
-        self.board[0][6] = KnightPiece(Colour.BLACK)
-        self.board[0][7] = RookPiece(Colour.BLACK)
+        self.board[0][0] = RookPiece        (Colour.BLACK, SquareLocation().setByXY(0,0))
+        self.board[0][1] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(0,1))
+        self.board[0][2] = BishopPiece      (Colour.BLACK, SquareLocation().setByXY(0,2))
+        self.board[0][3] = QueenPiece       (Colour.BLACK, SquareLocation().setByXY(0,3))
+        self.board[0][4] = KingPiece        (Colour.BLACK, SquareLocation().setByXY(0,4))
+        self.board[0][5] = BishopPiece      (Colour.BLACK, SquareLocation().setByXY(0,5))
+        self.board[0][6] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(0,6))
+        self.board[0][7] = RookPiece        (Colour.BLACK, SquareLocation().setByXY(0,7))
         # assign each pawn to it's initial position on the board
         for i in range(8):
-            self.board[1][i] = PawnPiece(Colour.BLACK)
-            self.board[6][i] = PawnPiece(Colour.WHITE)
+            self.board[1][i] = PawnPiece    (Colour.BLACK, SquareLocation().setByXY(1,i))
+            self.board[6][i] = PawnPiece    (Colour.WHITE, SquareLocation().setByXY(6, i))
         # assign each black piece to it's initial position on the board
-        self.board[7][0] = RookPiece(Colour.WHITE)
-        self.board[7][1] = KnightPiece(Colour.WHITE)
-        self.board[7][2] = BishopPiece(Colour.WHITE)
-        self.board[7][3] = QueenPiece(Colour.WHITE)
-        self.board[7][4] = KingPiece(Colour.WHITE)
-        self.board[7][5] = BishopPiece(Colour.WHITE)
-        self.board[7][6] = KnightPiece(Colour.WHITE)
-        self.board[7][7] = RookPiece(Colour.WHITE)
-    
-    # method to find the piece on a specified position of the board
-    def getPiece(self, x, y) -> Piece:
-        return self.board[x][y]
+        self.board[7][0] = RookPiece        (Colour.WHITE, SquareLocation().setByXY(7,0))
+        self.board[7][1] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(7,1))
+        self.board[7][2] = BishopPiece      (Colour.WHITE, SquareLocation().setByXY(7,2))
+        self.board[7][3] = QueenPiece       (Colour.WHITE, SquareLocation().setByXY(7,3))
+        self.board[7][4] = KingPiece        (Colour.WHITE, SquareLocation().setByXY(7,4))
+        self.board[7][5] = BishopPiece      (Colour.WHITE, SquareLocation().setByXY(7,5))
+        self.board[7][6] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(7,6))
+        self.board[7][7] = RookPiece        (Colour.WHITE, SquareLocation().setByXY(7,7))
 
-    def adNauseum(self,x,y,gameboard,colour,intervals):
-            # repeats the given interval until another piece is run into.
-            # if that piece is not the same colour, that square is added and 
-            # then the list is returned
-            answers = []
+    def __str__(self):  # redefine the __str__ special function to print the chess board out with new lines after every outer list element
+        ret = ""
 
-            for xint, yint in intervals:
-                xtemp, ytemp = x+xint, y+yint
-                while self.getAllowableMoves(xtemp, ytemp):
-                    target = gameboard.get((xtemp,ytemp),None)
-                    if target is None: answers.append((xtemp,ytemp))
-                    elif target.getColour() != colour:
-                        answers.append((xtemp,ytemp))
-                        break
-                    else:
-                        break
+        for i in range(8):
+            str_squares = (str(x) for x in self.board[i])
+            fixed_str_squares = (y if y != "" else "''" for y in str_squares)
+            line = " ".join(fixed_str_squares)
+            ret = ret + str(8-i) + " " + line + "\n"
 
-                xtemp,ytemp = xtemp+xint,ytemp+yint
-            return answers
+        ret = ret + "  " + \
+            "  ".join(["a", "b", "c", "d", "e", "f", "g", "h"]) + "\n"
+        return ret
 
-    def getAllowableMoves(self, x, y):
-        if type(self.getPiece(x,y)) == KnightPiece:
+    def getPiece(self, location) -> Piece: # method to find the piece on a specified position of the board
+        return self.board[location.x][location.y]
+
+    def getAllowableMoves(self, location : SquareLocation):
+        if type(self.getPiece(location)) == KnightPiece:
+            x = location.x
+            y = location.y
             # list of all possible moves
             destinationSquares = [(x+1,y+2),(x-1,y+2),(x+1,y-2),(x-1,y-2),(x+2,y+1),(x-2,y+1),(x+2,y-1),(x-2,y-1)]
             # list of all moves that are legal inside the board
@@ -157,50 +197,37 @@ class ChessBoard:
         return ret
 
 
-class SquareLocation:
-    file: int
-    rank: int
-    file_codes = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
-    def __init__(self, file, rank):
-        self.file = ord(file) - ord("a")
-        self.rank = int(rank) - 1
-
-    def __str__(self):
-        return f"{str(self.file_codes[self.file])}{str(self.rank + 1)}"
-
-    def getXY(self) -> typing.Tuple[int, int]:
-        return (7 - self.rank, self.file)
 
 
 class PawnPiece(Piece):
-    def __init__(self, colour):
-        super().__init__(colour, "P")
+    def __init__(self, colour, location):
+        super().__init__(colour, location)
 
 
 class RookPiece(Piece):
-    def __init__(self, colour):
-        super().__init__(colour, "R")
+    def __init__(self, colour, location):
+        super().__init__(colour, location)
 
 
 class KnightPiece(Piece):
-    def __init__(self, colour):
-        super().__init__(colour, "N")
+    def __init__(self, colour, location):
+        super().__init__(colour, location)
 
 
 class BishopPiece(Piece):
-    def __init__(self, colour):
-        super().__init__(colour, "B")
+    def __init__(self, colour, location):
+        super().__init__(colour, location)
 
 
 class KingPiece(Piece):
-    def __init__(self, colour):
-        super().__init__(colour, "K")
+    def __init__(self, colour, location):
+        super().__init__(colour, location)
 
 
 class QueenPiece(Piece):
-    def __init__(self, colour):
-        super().__init__(colour, "Q")
+    def __init__(self, colour, location):
+        super().__init__(colour, location)
 
 
 class GameState:
@@ -227,7 +254,8 @@ def main():
         # move stores the (SquareLocation, SquareLocation) representing the user's move
         move = askForMove(f"It's {str(game.whichTurn)}'s turn")
         # validateMoves is a list of all valid moves for piece the user is moving
-        validateMoves = game.gameBoard.getAllowableMoves(*(move[0].getXY()))
+        validateMoves = game.gameBoard.getAllowableMoves(move[0])
+        #### TODO: all the stuff below isn't relevant. I should hace each Subclass for each piece have a method that does the validity check on the user's inputted destionation SquareLocation
         # if the desired destination square is in the the list of validatedMoves, then finish the move
         if move[1].getXY() in validateMoves:
             # move the piece on the user's source sqare (move[0]) to the user's destination square (move[1])
