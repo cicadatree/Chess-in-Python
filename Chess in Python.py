@@ -61,7 +61,8 @@ class SquareLocation:
     def setByXY(self, x, y):
         self.file = x
         self.rank = y
-
+        return self
+ 
     def getXY(self) -> typing.Tuple[int, int]:
         return (7 - self.rank, self.file)
 
@@ -92,7 +93,7 @@ class Colour(Enum):  # enumerate white and black
 
 
 class Piece:
-    def __init__(self, colour, location):
+    def __init__(self, colour : Colour, location : SquareLocation):
         self.colour = colour
         self.location = location
 
@@ -117,7 +118,6 @@ class Piece:
             return "B"
         else:
             return "''"
-
 
     __repr__ = __str__
 
@@ -168,7 +168,7 @@ class ChessBoard:
             "  ".join(["a", "b", "c", "d", "e", "f", "g", "h"]) + "\n"
         return ret
 
-    def getPiece(self, location) -> Piece: # method to find the piece on a specified position of the board
+    def getPiece(self, location : SquareLocation) -> Piece: # method to find the piece on a specified position of the board
         return self.board[location.x][location.y]
 
     def getAllowableMoves(self, location : SquareLocation):
@@ -198,36 +198,125 @@ class ChessBoard:
 
 
 
-
-
 class PawnPiece(Piece):
-    def __init__(self, colour, location):
+    def __init__(self, colour, location : SquareLocation):
         super().__init__(colour, location)
+
+    def isValidMove(self):
+        return True
 
 
 class RookPiece(Piece):
-    def __init__(self, colour, location):
+    def __init__(self, colour, location : SquareLocation):
         super().__init__(colour, location)
+
+    def isValidMove(self, location : SquareLocation):
+        dx = abs(location.x - self.location.x)
+        dy = abs(location.y - self.location.y)
+
+        # Check if the move is on the cardinal
+        if dx != 0 and dy != 0:
+            return False
+
+        # Check the northeast direction
+        if location.x > self.location.x:
+            for i in range(1, dx):
+                if ((self.location.x + i),(self.location.y)) is not None:
+                    return False
+        # Check the northwest direction
+        elif location.x < self.location.x:
+            for i in range(1, dx):
+                if (self.location.x - i, self.location.y + i) is not None:
+                    return False
+        # Check the southeast direction
+        elif location.y < self.location.y:
+            for i in range(1, dx):
+                if (self.location.x, self.location.y - i) is not None:
+                    return False
+        # Check the southwest direction
+        elif location.y < self.location.y:
+            for i in range(1, dx):
+                if (self.location.x, self.location.y - i) is not None:
+                    return False
+
+        return True
 
 
 class KnightPiece(Piece):
-    def __init__(self, colour, location):
+    def __init__(self, colour, location : SquareLocation):
         super().__init__(colour, location)
+
+    def isValidMove(self, targetLocation):
+        x = (7-self.location.x)
+        y = self.location.y
+
+        # list of all possible moves
+        destinationSquares = [(x+1,y+2),(x-1,y+2),(x+1,y-2),(x-1,y-2),(x+2,y+1),(x-2,y+1),(x+2,y-1),(x-2,y-1)]
+
+        # check if target valid for the knight
+        if (targetLocation.y, targetLocation.x) not in destinationSquares:
+            return False
+
+        # check if target location is out of bounds
+        if (targetLocation.x < 0 and targetLocation.x > 7) and (targetLocation.y < 0 and targetLocation.y > 7):
+            return False
+
+        if game.gameBoard.getPiece(targetLocation).getColour() == game.whichTurn:
+            return False
+       
+        return True
 
 
 class BishopPiece(Piece):
-    def __init__(self, colour, location):
+    def __init__(self, colour, location: SquareLocation):
         super().__init__(colour, location)
+
+    def isValidMove(self, location : SquareLocation):
+        dx = abs(location.x - self.location.x)
+        dy = abs(location.y - self.location.y)
+
+        # Check if the move is on the diagonal
+        if dx != dy:
+            return False
+
+        # Check the northeast direction
+        if location.x > self.location.x and location.y > self.location.y:
+            for i in range(1, dx):
+                if ((self.location.x + i),(self.location.y + i)) is not None:
+                    return False
+        # Check the northwest direction
+        elif location.x < self.location.x and location.y > self.location.y:
+            for i in range(1, dx):
+                if (self.location.x - i,self.location.y + i) is not None:
+                    return False
+        # Check the southeast direction
+        elif location.x > self.location.x and location.y < self.location.y:
+            for i in range(1, dx):
+                if (self.location.x + i,self.location.y - i) is not None:
+                    return False
+        # Check the southwest direction
+        elif location.x < self.location.x and location.y < self.location.y:
+            for i in range(1, dx):
+                if (self.location.x - i,self.location.y - i) is not None:
+                    return False
+
+        return True
 
 
 class KingPiece(Piece):
-    def __init__(self, colour, location):
+    def __init__(self, colour, location : SquareLocation):
         super().__init__(colour, location)
+
+    def isValidMove(self):
+        return True
 
 
 class QueenPiece(Piece):
-    def __init__(self, colour, location):
+    def __init__(self, colour, location : SquareLocation):
         super().__init__(colour, location)
+
+    def isValidMove(self):
+        return True
 
 
 class GameState:
@@ -236,6 +325,13 @@ class GameState:
     turnCounter: int = 0
     # whichColour indicates whose turn it is (starting with White by default)
     whichTurn: Colour = Colour.WHITE
+
+    # just move the piece; validation is done elsewhere
+    def movePiece(self, sourcePiece : Piece, playerMove : typing.Tuple(SquareLocation, SquareLocation)):
+        if game.gameBoard.getPiece(playerMove[0]).isValidMove(playerMove[1]):
+            sourcePiece.location = playerMove[1]
+            game.gameBoard.board[playerMove[1].x][playerMove[1].y] = sourcePiece
+            game.gameBoard.board[playerMove[0].x][playerMove[0].y] = EmptySquare()
 
     def moveToNextTurn(self):
         self.turnCounter += 1
@@ -253,16 +349,9 @@ def main():
         print(game.gameBoard)
         # move stores the (SquareLocation, SquareLocation) representing the user's move
         move = askForMove(f"It's {str(game.whichTurn)}'s turn")
-        # validateMoves is a list of all valid moves for piece the user is moving
-        validateMoves = game.gameBoard.getAllowableMoves(move[0])
-        #### TODO: all the stuff below isn't relevant. I should hace each Subclass for each piece have a method that does the validity check on the user's inputted destionation SquareLocation
-        # if the desired destination square is in the the list of validatedMoves, then finish the move
-        if move[1].getXY() in validateMoves:
-            # move the piece on the user's source sqare (move[0]) to the user's destination square (move[1])
-            game.gameBoard.board[move[1].getXY()[0]][move[1].getXY()[1]] = game.gameBoard.board[move[0].getXY()[0]][move[0].getXY()[1]]
-            # remove the piece from it's source square (replacing the source square with an EmptySquare instance)
-            game.gameBoard.board[move[0].getXY()[0]][move[0].getXY()[1]] = EmptySquare()
-        # switch sides before moving to the next turn
+        game.movePiece(game.gameBoard.getPiece(move[0]), move)
+    
+
         game.moveToNextTurn()
         continue
 
