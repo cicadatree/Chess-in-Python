@@ -3,7 +3,6 @@ from enum import Enum, auto
 import re
 import typing
 
-emptyCell = ''  # represents an empty board position
 # Regular Expression for valid moves:
 #   (letter-from-a-to-h) (number-from-1-to-8) hyphen (letter-from-a-to-h) (number-from-1-to-8)
 # (the parentheses around each letter and number capture it in a capture group)
@@ -20,30 +19,34 @@ def askForMove(message) -> typing.Tuple[SquareLocation, SquareLocation]:
     print(message)
     gotValidMove = False
     while not gotValidMove:
-        userInput = input("Enter desired move in Long Chess Notation (eg., b4-c5): ")
-        # Validate and parse the user input
+        userInput = input("Enter your move ing the form of Long Chess Notation (eg., b4-c5): ")
+        # returns True if userInput matches the regular expression groups in longNotationPattern
         match = re.search(longNotationPattern, userInput)
         if not match:
             print("Incorrect syntax -- try again")
             continue
 
-        # Get the X/Y of the source and destination
-        source_location = SquareLocation(match.group(1), match.group(2))
-        dest_location = SquareLocation(match.group(3), match.group(4))
+        # stores the matching group(1) and group(2) from the user's input as a SquareLocation object instance. These groups represent the rank and file of the source destination in the form of long algebraic notation.
+        sourceLocation = SquareLocation(match.group(1), match.group(2))
+        # similary to sourceLocation's comment, destLocation stores the matching group(3) and group(4) from the user's input as a SquareLocation object instance.
+        destLocation = SquareLocation(match.group(3), match.group(4))
 
-        # Check if the userSelection piece is the same colour as the player making the selection
-        userSelection = game.gameBoard.getPiece(source_location)
-        if userSelection.colour == game.whichTurn:
+        # userSelection stores the return value for the getPieceFromBoard() method from the ChessBoard Class. 
+        # The .getPieceFromBoard() method takes a SquareLocation as it's only argument, and returns the piece contained by the (x, y) board position: (_x property, _y property) of the SquareLocation argument
+        userPieceSelection = game.gameBoard.getPieceFromBoard(sourceLocation)
+        
+        # check if the piece the user wants to move is their colour
+        if userPieceSelection.colour == game.whichTurn:
             game.gameBoard
-            # if the piece colour is correct, return the move
-            return (source_location, dest_location)
+            # return the SquareLocations of the user's sourceLocation and destLocation
+            return (sourceLocation, destLocation)
 
-        # check if userSelection is a Piece (vs an empty board position):
-        if userSelection == emptyCell:
+        # check if the user is trying to select an EmptySquare Piece
+        if userPieceSelection == EmptySquare:
             print("Source square does not contain a piece - try again")
 
-        # if the colour is wrong - let the user know, but do not tell them they are an idiot!
-        print(f"{str(userSelection)} - Wrong colour - try again ")
+        # if all conditions are not valid, it means the user is trying to move a Piece which isn't their own. repeat the loop.
+        print(f"{str(userPieceSelection)} - Wrong colour - try again ")
 
 
 class SquareLocation:
@@ -62,15 +65,12 @@ class SquareLocation:
         self.file = x
         self.rank = y
         return self
- 
-    def getXY(self) -> typing.Tuple[int, int]:
-        return (7 - self.rank, self.file)
 
     def get_x(self) -> int:
-        return (7 - self.rank)
+        return (self.file)
     
     def get_y(self) -> int:
-        return (self.file)
+        return (7 - self.rank)
 
     x = property(get_x)
     y = property(get_y)
@@ -88,7 +88,6 @@ class Colour(Enum):  # enumerate white and black
         else:
             return ''
         
-
     __repr__ = __str__
 
 
@@ -133,46 +132,34 @@ class ChessBoard:
 
     def __init__(self):  # initialize the board with Pieces
         # assigns each white piece to it's initial position on the board
-        self.board[0][0] = RookPiece        (Colour.BLACK, SquareLocation().setByXY(0,0))
-        self.board[0][1] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(0,1))
-        self.board[0][2] = BishopPiece      (Colour.BLACK, SquareLocation().setByXY(0,2))
-        self.board[0][3] = QueenPiece       (Colour.BLACK, SquareLocation().setByXY(0,3))
-        self.board[0][4] = KingPiece        (Colour.BLACK, SquareLocation().setByXY(0,4))
-        self.board[0][5] = BishopPiece      (Colour.BLACK, SquareLocation().setByXY(0,5))
-        self.board[0][6] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(0,6))
-        self.board[0][7] = RookPiece        (Colour.BLACK, SquareLocation().setByXY(0,7))
+        self.board[0][0] = RookPiece        (Colour.WHITE, SquareLocation().setByXY(0,0))
+        self.board[0][1] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(0,1))
+        self.board[0][2] = BishopPiece      (Colour.WHITE, SquareLocation().setByXY(0,2))
+        self.board[0][3] = QueenPiece       (Colour.WHITE, SquareLocation().setByXY(0,3))
+        self.board[0][4] = KingPiece        (Colour.WHITE, SquareLocation().setByXY(0,4))
+        self.board[0][5] = BishopPiece      (Colour.WHITE, SquareLocation().setByXY(0,5))
+        self.board[0][6] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(0,6))
+        self.board[0][7] = RookPiece        (Colour.WHITE, SquareLocation().setByXY(0,7))
         # assign each pawn to it's initial position on the board
         for i in range(8):
-            self.board[1][i] = PawnPiece    (Colour.BLACK, SquareLocation().setByXY(1,i))
-            self.board[6][i] = PawnPiece    (Colour.WHITE, SquareLocation().setByXY(6, i))
+            self.board[1][i] = PawnPiece    (Colour.WHITE, SquareLocation().setByXY(1,i))
+            self.board[6][i] = PawnPiece    (Colour.BLACK, SquareLocation().setByXY(6,i))
+
         # assign each black piece to it's initial position on the board
-        self.board[7][0] = RookPiece        (Colour.WHITE, SquareLocation().setByXY(7,0))
-        self.board[7][1] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(7,1))
-        self.board[7][2] = BishopPiece      (Colour.WHITE, SquareLocation().setByXY(7,2))
-        self.board[7][3] = QueenPiece       (Colour.WHITE, SquareLocation().setByXY(7,3))
-        self.board[7][4] = KingPiece        (Colour.WHITE, SquareLocation().setByXY(7,4))
-        self.board[7][5] = BishopPiece      (Colour.WHITE, SquareLocation().setByXY(7,5))
-        self.board[7][6] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(7,6))
-        self.board[7][7] = RookPiece        (Colour.WHITE, SquareLocation().setByXY(7,7))
+        self.board[7][0] = RookPiece        (Colour.BLACK, SquareLocation().setByXY(7,0))
+        self.board[7][1] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(7,1))
+        self.board[7][2] = BishopPiece      (Colour.BLACK, SquareLocation().setByXY(7,2))
+        self.board[7][3] = QueenPiece       (Colour.BLACK, SquareLocation().setByXY(7,3))
+        self.board[7][4] = KingPiece        (Colour.BLACK, SquareLocation().setByXY(7,4))
+        self.board[7][5] = BishopPiece      (Colour.BLACK, SquareLocation().setByXY(7,5))
+        self.board[7][6] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(7,6))
+        self.board[7][7] = RookPiece        (Colour.BLACK, SquareLocation().setByXY(7,7))
 
-    def __str__(self):  # redefine the __str__ special function to print the chess board out with new lines after every outer list element
-        ret = ""
-
-        for i in range(8):
-            str_squares = (str(x) for x in self.board[i])
-            fixed_str_squares = (y if y != "" else "''" for y in str_squares)
-            line = " ".join(fixed_str_squares)
-            ret = ret + str(8-i) + " " + line + "\n"
-
-        ret = ret + "  " + \
-            "  ".join(["a", "b", "c", "d", "e", "f", "g", "h"]) + "\n"
-        return ret
-
-    def getPiece(self, location : SquareLocation) -> Piece: # method to find the piece on a specified position of the board
+    def getPieceFromBoard(self, location : SquareLocation) -> Piece: # method to find the piece on a specified position of the board
         return self.board[location.x][location.y]
 
     def getAllowableMoves(self, location : SquareLocation):
-        if type(self.getPiece(location)) == KnightPiece:
+        if type(self.getPieceFromBoard(location)) == KnightPiece:
             x = location.x
             y = location.y
             # list of all possible moves
@@ -186,16 +173,14 @@ class ChessBoard:
     def __str__(self):  # redefine the __str__ special function to print the chess board out with new lines after every outer list element
         ret = ""
 
-        for i in range(8):
+        for i in reversed(range(8)):
             str_squares = (str(x) for x in self.board[i])
             fixed_str_squares = (y if y != "" else "''" for y in str_squares)
             line = " ".join(fixed_str_squares)
             ret = ret + str(8-i) + " " + line + "\n"
 
-        ret = ret + "  " + \
-            "  ".join(["a", "b", "c", "d", "e", "f", "g", "h"]) + "\n"
+        ret = ret + "  ".join(["a", "b", "c", "d", "e", "f", "g", "h"]) + "\n"
         return ret
-
 
 
 class PawnPiece(Piece):
@@ -261,7 +246,7 @@ class KnightPiece(Piece):
         if (targetLocation.x < 0 and targetLocation.x > 7) and (targetLocation.y < 0 and targetLocation.y > 7):
             return False
 
-        if game.gameBoard.getPiece(targetLocation).getColour() == game.whichTurn:
+        if game.gameBoard.getPieceFromBoard(targetLocation).getColour() == game.whichTurn:
             return False
        
         return True
@@ -276,7 +261,7 @@ class BishopPiece(Piece):
         dy = abs(location.y - self.location.y)
 
         # Check if the move is on the diagonal
-        if dx != dy:
+        if (7- dx) != dy:
             return False
 
         # Check the northeast direction
@@ -328,7 +313,7 @@ class GameState:
 
     # just move the piece; validation is done elsewhere
     def movePiece(self, sourcePiece : Piece, playerMove : typing.Tuple(SquareLocation, SquareLocation)):
-        if game.gameBoard.getPiece(playerMove[0]).isValidMove(playerMove[1]):
+        if game.gameBoard.getPieceFromBoard(playerMove[0]).isValidMove(playerMove[1]):
             sourcePiece.location = playerMove[1]
             game.gameBoard.board[playerMove[1].x][playerMove[1].y] = sourcePiece
             game.gameBoard.board[playerMove[0].x][playerMove[0].y] = EmptySquare()
@@ -349,9 +334,7 @@ def main():
         print(game.gameBoard)
         # move stores the (SquareLocation, SquareLocation) representing the user's move
         move = askForMove(f"It's {str(game.whichTurn)}'s turn")
-        game.movePiece(game.gameBoard.getPiece(move[0]), move)
-    
-
+        game.movePiece(game.gameBoard.getPieceFromBoard(move[0]), move)
         game.moveToNextTurn()
         continue
 
