@@ -93,15 +93,18 @@ class Colour(Enum):  # enumerate white and black
 
 
 class Piece:
-    def __init__(self, colour : Colour, location : SquareLocation):
+    def __init__(self, colour : Colour):
         self.colour = colour
-        self.location = location
+        self.location = None
 
     def __str__(self) -> str:  # redefine the __str__ special function to print the
         return str(self.colour) + self.getPieceType()
 
     def getColour(self):
         return self.colour
+
+    def set_location(self, location):
+        self.location = location
 
     def getPieceType(self):
         if type(self) == PawnPiece:
@@ -124,36 +127,41 @@ class Piece:
 
 class EmptySquare(Piece):
     def __init__(self):
-        super().__init__(Colour.UNDEF, SquareLocation())
+        super().__init__(Colour.UNDEF)
 
 
 class ChessBoard:
-    # define the initial board as a 2D array, where '' represents an empty square
-    board = [[EmptySquare() for j in range(8)] for i in range(8)]
+    def __init__(self):
+        self.board = [[EmptySquare() for j in range(8)] for i in range(8)]
 
-    def __init__(self):  # initialize the board with Pieces
-        # assigns each white piece to it's initial position on the board
-        self.board[0][0] = RookPiece        (Colour.BLACK, SquareLocation().setByXY(0,0))
-        self.board[0][1] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(0,1))
-        self.board[0][2] = BishopPiece      (Colour.BLACK, SquareLocation().setByXY(0,2))
-        self.board[0][3] = QueenPiece       (Colour.BLACK, SquareLocation().setByXY(0,3))
-        self.board[0][4] = KingPiece        (Colour.BLACK, SquareLocation().setByXY(0,4))
-        self.board[0][5] = BishopPiece      (Colour.BLACK, SquareLocation().setByXY(0,5))
-        self.board[0][6] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(0,6))
-        self.board[0][7] = RookPiece        (Colour.BLACK, SquareLocation().setByXY(0,7))
-        # assign each pawn to it's initial position on the board
-        for i in range(8):
-            self.board[1][i] = PawnPiece    (Colour.BLACK, SquareLocation().setByXY(1,i))
-            self.board[6][i] = PawnPiece    (Colour.WHITE, SquareLocation().setByXY(6, i))
-        # assign each black piece to it's initial position on the board
-        self.board[7][0] = RookPiece        (Colour.WHITE, SquareLocation().setByXY(7,0))
-        self.board[7][1] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(7,1))
-        self.board[7][2] = BishopPiece      (Colour.WHITE, SquareLocation().setByXY(7,2))
-        self.board[7][3] = QueenPiece       (Colour.WHITE, SquareLocation().setByXY(7,3))
-        self.board[7][4] = KingPiece        (Colour.WHITE, SquareLocation().setByXY(7,4))
-        self.board[7][5] = BishopPiece      (Colour.WHITE, SquareLocation().setByXY(7,5))
-        self.board[7][6] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(7,6))
-        self.board[7][7] = RookPiece        (Colour.WHITE, SquareLocation().setByXY(7,7))
+        # initialize the board with Pieces
+        # assign each white piece to its initial position on the board
+        for i, piece in enumerate([RookPiece(Colour.WHITE), KnightPiece(Colour.WHITE), BishopPiece(Colour.WHITE), 
+                                   QueenPiece(Colour.WHITE), KingPiece(Colour.WHITE), BishopPiece(Colour.WHITE), 
+                                   KnightPiece(Colour.WHITE), RookPiece(Colour.WHITE)]):
+            self.board[7][i] = piece
+            piece.set_location(SquareLocation().setByXY(7, i))
+
+        # assign each White pawn pawn to its initial position on the board
+        for i, piece in enumerate([PawnPiece(Colour.WHITE), PawnPiece(Colour.WHITE), PawnPiece(Colour.WHITE), 
+                                   PawnPiece(Colour.WHITE), PawnPiece(Colour.WHITE), PawnPiece(Colour.WHITE), 
+                                   PawnPiece(Colour.WHITE), PawnPiece(Colour.WHITE)]):
+            self.board[6][i] = piece
+            piece.set_location(SquareLocation().setByXY(6, i))
+
+        # assign each black pawn pawn to its initial position on the board
+        for i, piece in enumerate([PawnPiece(Colour.BLACK), PawnPiece(Colour.BLACK), PawnPiece(Colour.BLACK), 
+                                   PawnPiece(Colour.BLACK), PawnPiece(Colour.BLACK), PawnPiece(Colour.BLACK), 
+                                   PawnPiece(Colour.BLACK), PawnPiece(Colour.BLACK)]):
+            self.board[1][i] = piece
+            piece.set_location(SquareLocation().setByXY(1, i))
+
+        # assign each black piece to its initial position on the board
+        for i, piece in enumerate([RookPiece(Colour.BLACK), KnightPiece(Colour.BLACK), BishopPiece(Colour.BLACK), 
+                            QueenPiece(Colour.BLACK), KingPiece(Colour.BLACK), BishopPiece(Colour.BLACK), 
+                            KnightPiece(Colour.BLACK), RookPiece(Colour.BLACK)]):
+            self.board[0][i] = piece
+            piece.location = SquareLocation().setByXY(0, i)
 
     def __str__(self):  # redefine the __str__ special function to print the chess board out with new lines after every outer list element
         ret = ""
@@ -199,16 +207,16 @@ class ChessBoard:
 
 
 class PawnPiece(Piece):
-    def __init__(self, colour, location : SquareLocation):
-        super().__init__(colour, location)
+    def __init__(self, colour):
+        super().__init__(colour)
 
     def isValidMove(self):
         return True
 
 
 class RookPiece(Piece):
-    def __init__(self, colour, location : SquareLocation):
-        super().__init__(colour, location)
+    def __init__(self, colour):
+        super().__init__(colour)
 
     def isValidMove(self, location : SquareLocation):
         dx = abs(location.x - self.location.x)
@@ -243,8 +251,8 @@ class RookPiece(Piece):
 
 
 class KnightPiece(Piece):
-    def __init__(self, colour, location : SquareLocation):
-        super().__init__(colour, location)
+    def __init__(self, colour):
+        super().__init__(colour)
 
     def isValidMove(self, targetLocation):
         x = (7-self.location.x)
@@ -268,8 +276,8 @@ class KnightPiece(Piece):
 
 
 class BishopPiece(Piece):
-    def __init__(self, colour, location: SquareLocation):
-        super().__init__(colour, location)
+    def __init__(self, colour):
+        super().__init__(colour)
 
     def isValidMove(self, location : SquareLocation):
         dx = abs(location.x - self.location.x)
@@ -304,16 +312,16 @@ class BishopPiece(Piece):
 
 
 class KingPiece(Piece):
-    def __init__(self, colour, location : SquareLocation):
-        super().__init__(colour, location)
+    def __init__(self, colour):
+        super().__init__(colour)
 
     def isValidMove(self):
         return True
 
 
 class QueenPiece(Piece):
-    def __init__(self, colour, location : SquareLocation):
-        super().__init__(colour, location)
+    def __init__(self, colour):
+        super().__init__(colour)
 
     def isValidMove(self):
         return True
@@ -350,8 +358,6 @@ def main():
         # move stores the (SquareLocation, SquareLocation) representing the user's move
         move = askForMove(f"It's {str(game.whichTurn)}'s turn")
         game.movePiece(game.gameBoard.getPiece(move[0]), move)
-    
-
         game.moveToNextTurn()
         continue
 
