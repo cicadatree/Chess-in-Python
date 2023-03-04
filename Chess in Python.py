@@ -87,7 +87,6 @@ class Colour(Enum):  # enumerate white and black
             return 'B'
         else:
             return ''
-        
 
     __repr__ = __str__
 
@@ -205,20 +204,23 @@ class ChessBoard:
         return ret
 
 
-
 class PawnPiece(Piece):
     def __init__(self, colour):
         super().__init__(colour)
 
-    def isValidMove(self):
-        return True
+    def isValidMove(self, location : SquareLocation):
+        dy = abs(location.y - self.location.y)
 
+        if not dy >= 0 or dy > 2:
+            return False
+
+        return True
 
 class RookPiece(Piece):
     def __init__(self, colour):
         super().__init__(colour)
 
-    def isValidMove(self, location : SquareLocation):
+    def isValidMove(self, location : SquareLocation): # location is the destincation Square location. self.location is wherever the given piece is.
         dx = abs(location.x - self.location.x)
         dy = abs(location.y - self.location.y)
 
@@ -246,7 +248,6 @@ class RookPiece(Piece):
             for i in range(1, dx):
                 if (self.location.x, self.location.y - i) is not None:
                     return False
-
         return True
 
 
@@ -328,18 +329,18 @@ class QueenPiece(Piece):
 
 
 class GameState:
-    gameBoard: ChessBoard = ChessBoard()    # gameBoard is a ChessBoard-like object
+    gameBoard = ChessBoard()    # gameBoard is a ChessBoard-like object
     # turnCounter starts on 0 and should increment by 1 at the end of each turn.
-    turnCounter: int = 0
+    turnCounter = 0
     # whichColour indicates whose turn it is (starting with White by default)
-    whichTurn: Colour = Colour.WHITE
+    whichTurn = Colour.WHITE
 
     # just move the piece; validation is done elsewhere
     def movePiece(self, sourcePiece : Piece, playerMove : typing.Tuple(SquareLocation, SquareLocation)):
-        if game.gameBoard.getPiece(playerMove[0]).isValidMove(playerMove[1]):
-            sourcePiece.location = playerMove[1]
+        if sourcePiece.isValidMove(playerMove[1]):
             game.gameBoard.board[playerMove[1].x][playerMove[1].y] = sourcePiece
-            game.gameBoard.board[playerMove[0].x][playerMove[0].y] = EmptySquare()
+            game.gameBoard.board[sourcePiece.location.x][sourcePiece.location.y] = EmptySquare()
+            sourcePiece.location = playerMove[1]
 
     def moveToNextTurn(self):
         self.turnCounter += 1
