@@ -11,7 +11,7 @@ import typing
 #   source_rank = match.group(2)
 #   dest_file = match.group(3)
 #   dest_rank = match.group(4)
-longNotationPattern = "^([a-h])([1-8])-([a-h])([1-8])$" 
+longNotationPattern = "^([a-h])([1-8])-([a-h])([1-8])$"
 
 # global utility function for checking if a piece move is valid
 def askForMove(message) -> typing.Tuple[SquareLocation, SquareLocation]:
@@ -20,7 +20,8 @@ def askForMove(message) -> typing.Tuple[SquareLocation, SquareLocation]:
     gotValidMove = False
     while not gotValidMove:
         userInput = input("Enter your move ing the form of Long Chess Notation (eg., b4-c5): ")
-        # returns True if userInput matches the regular expression groups in longNotationPattern
+        # returns a Match object if userInput matches the regular expression groups in
+        # longNotationPattern, or None if it doesn't match
         match = re.search(longNotationPattern, userInput)
         if not match:
             print("Incorrect syntax -- try again")
@@ -31,10 +32,10 @@ def askForMove(message) -> typing.Tuple[SquareLocation, SquareLocation]:
         # similary to sourceLocation's comment, destLocation stores the matching group(3) and group(4) from the user's input as a SquareLocation object instance.
         destLocation = SquareLocation(match.group(3), match.group(4))
 
-        # userSelection stores the return value for the getPieceFromBoard() method from the ChessBoard Class. 
+        # userSelection stores the return value for the getPieceFromBoard() method from the ChessBoard Class.
         # The .getPieceFromBoard() method takes a SquareLocation as it's only argument, and returns the piece contained by the (x, y) board position: (_x property, _y property) of the SquareLocation argument
         userPieceSelection = game.gameBoard.getPieceFromBoard(sourceLocation)
-        
+
         # check if the piece the user wants to move is their colour
         if userPieceSelection.colour == game.whichTurn:
             game.gameBoard
@@ -68,7 +69,7 @@ class SquareLocation:
 
     def get_x(self) -> int:
         return (self.file)
-    
+
     def get_y(self) -> int:
         return (7 - self.rank)
 
@@ -87,7 +88,7 @@ class Colour(Enum):  # enumerate white and black
             return 'B'
         else:
             return ''
-        
+
     __repr__ = __str__
 
 
@@ -126,6 +127,119 @@ class EmptySquare(Piece):
         super().__init__(Colour.UNDEF, SquareLocation())
 
 
+# The chess board conceptually looks like this, addressed by ranks (1-8) and files (a-h):
+#
+#  Rank
+#  |
+#  v
+#
+#  8  BR BK BB BQ BK BB BK BR
+#  7  BP BP BP BP BP BP BP BP
+#  6  -- -- -- -- -- -- -- --
+#  5  -- -- -- -- -- -- -- --
+#  4  -- -- -- -- -- -- -- --
+#  3  -- -- -- -- -- -- -- --
+#  2  WP WP WP WP WP WP WP WP
+#  1  WR WK WB WQ WK WB WK WR
+#
+#     a  b  c  d  e  f  g  h <-- File
+#
+#
+# It is represented in memory as a 2D array, addressed by 'x' (0-7) and 'y' (0-7):
+#
+#  x
+#
+#  |
+#  |
+#  v  0  1  2  3  4  5  6  7  <--- y
+#    +--+--+--+--+--+--+--+--+
+#  0 |  |  |  |  |  |  |  |  |
+#    +--+--+--+--+--+--+--+--+
+#  1 |  |  |  |  |  |  |  |  |
+#    +--+--+--+--+--+--+--+--+
+#  2 |  |  |  |  |  |  |  |  |
+#    +--+--+--+--+--+--+--+--+
+#  3 |  |  |  |  |  |  |  |  |
+#    +--+--+--+--+--+--+--+--+
+#  4 |  |  |  |  |  |  |  |  |
+#    +--+--+--+--+--+--+--+--+
+#  5 |  |  |  |  |  |  |  |  |
+#    +--+--+--+--+--+--+--+--+
+#  6 |  |  |  |  |  |  |  |  |
+#    +--+--+--+--+--+--+--+--+
+#  7 |  |  |  |  |  |  |  |  |
+#    +--+--+--+--+--+--+--+--+
+#
+# We have to decide how we're going to represent it in memory, i.e, how we're going to
+# Map rank and file to 'x' and 'y' offsets of the array.  One way to represent it would
+# be to just place the pieces into their corresponding cell of the array, as they are
+# visually represented here:
+#
+#     0  1  2  3  4  5  6  7             0  1  2  3  4  5  6  7
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  0 |BR|BK|BB|BQ|BK|BB|BK|BR|        0 |a8|b8|c8|d8|e8|f8|g8|h8|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  1 |BP|BP|BP|BP|BP|BP|BP|BP|        1 |a7|b7|c7|d7|e7|f7|g7|h7|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  2 |  |  |  |  |  |  |  |  |        2 |a6|b6|c6|d6|e6|f6|g6|h6|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  3 |  |  |  |  |  |  |  |  |        3 |a5|b5|c5|d5|e5|f5|g5|h5|
+#    +--+--+--+--+--+--+--+--+   --->   +--+--+--+--+--+--+--+--+
+#  4 |  |  |  |  |  |  |  |  |        4 |a4|b4|c4|d4|e4|f4|g4|h4|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  5 |  |  |  |  |  |  |  |  |        5 |a3|b3|c3|d3|e3|f3|g3|h3|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  6 |WP|WP|WP|WP|WP|WP|WP|WP|        6 |a2|b2|c2|d2|e2|f2|g2|h2|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  7 |WR|WK|WB|WQ|WK|WB|WK|WR|        7 |a1|b1|c1|d1|e1|f1|g1|h1|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#
+# One thing to notice here is that rank decreases as 'x' increases.  Also that rank
+# is 1-based, whereas 'x' is 0-based.  File is more straightforward, as the 'y'
+# value for file is just the file letter's ordinal number minus the ordinal for 'a',
+# as both file and 'y' increase together.  So, to convert between rank to 'x' we have
+# to first make rank 0-based, and then substract that 0-based rank from 7 (the maximum
+# value for 'x'):
+#
+#   x = 7 - (rank - 1) = 8 - rank
+#   y = ord(file) - ord('a')
+#   rank = 8 - x
+#   file = chr(y + ord('a'))
+#
+#
+# An alternate way to represent it would be to have rank and file correspond more directly
+# to 'x' and 'y', which would only require making 'rank' 0-based.  But in that case, then
+# the chess board is flipped horizontally in its memory representation:
+#
+#     0  1  2  3  4  5  6  7             0  1  2  3  4  5  6  7
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  0 |WR|WK|WB|WQ|WK|WB|WK|WR|        0 |a1|b1|c1|d1|e1|f1|g1|h1|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  1 |WP|WP|WP|WP|WP|WP|WP|WP|        1 |a2|b2|c2|d2|e2|f2|g2|h2|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  2 |  |  |  |  |  |  |  |  |        2 |a3|b3|c3|d3|e3|f3|g3|h3|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  3 |  |  |  |  |  |  |  |  |        3 |a4|b4|c4|d4|e4|f4|g4|h4|
+#    +--+--+--+--+--+--+--+--+   --->   +--+--+--+--+--+--+--+--+
+#  4 |  |  |  |  |  |  |  |  |        4 |a5|b5|c5|d5|e5|f5|g5|h5|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  5 |  |  |  |  |  |  |  |  |        5 |a6|b6|c6|d6|e6|f6|g6|h6|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  6 |BP|BP|BP|BP|BP|BP|BP|BP|        6 |a7|b7|c7|d7|e7|f7|g7|h7|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#  7 |BR|BK|BB|BQ|BK|BB|BK|BR|        7 |a8|b8|c8|d8|e8|f8|g8|h8|
+#    +--+--+--+--+--+--+--+--+          +--+--+--+--+--+--+--+--+
+#
+# In this configuration, converting from rank/file to x/y is more straightforward:
+#
+#   x = rank - 1
+#   y = ord(file) - ord('a')
+#   rank = x + 1
+#   file = chr(y + ord('a'))
+#
+# When printing out the chessboard, it is important to 'unflip' it so that it is
+# represented visually the right way.
+#
 class ChessBoard:
     # define the initial board as a 2D array, where '' represents an empty square
     board = [[EmptySquare() for j in range(8)] for i in range(8)]
@@ -248,7 +362,7 @@ class KnightPiece(Piece):
 
         if game.gameBoard.getPieceFromBoard(targetLocation).getColour() == game.whichTurn:
             return False
-       
+
         return True
 
 
