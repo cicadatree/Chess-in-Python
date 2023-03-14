@@ -188,17 +188,17 @@ class RookPiece(Piece):
         # Check the west direction
         elif location.x < self.location.x:
             for i in range(1, dx):
-                if (self.location.x - i, self.location.y + i) is not None:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i), (self.location.y)))) is not EmptySquare:
                     return False
         # Check the south direction
-        elif location.y < self.location.y:
+        elif location.y > self.location.y:
             for i in range(1, dx):
-                if (self.location.x, self.location.y - i) is not None:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
                     return False
         # Check the north direction
         elif location.y < self.location.y:
             for i in range(1, dx):
-                if (self.location.x, self.location.y - i) is not None:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
                     return False
 
         return True
@@ -408,7 +408,7 @@ class GameState:
             return True
         else:
             # TODO: handle cases when the move is not valid (i.e)
-            print("this is not a valid move, try again.")
+            print("this is not a valid move, try again. \n")
             return False
 
     def moveToNextTurn(self):
