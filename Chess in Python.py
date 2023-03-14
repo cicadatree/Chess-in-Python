@@ -326,11 +326,14 @@ class QueenPiece(Piece):
     def __init__(self, colour, location : Position):
         super().__init__(colour, location)
 
+
+    # TODO: queen movement works, but it's not doing piece collision detection
+    
     def isValidMove(self, location : Position):
         dx = abs(location.x - self.location.x)
         dy = abs(location.y - self.location.y)
 
-        if dx != dy or dx != 0 and dy != 0:
+        if dx != dy and (dx != 0 and dy != 0):
             return False
         
         # check the southeast direction
@@ -350,27 +353,27 @@ class QueenPiece(Piece):
                     return False
         # Check the northwest direction
         elif location.x < self.location.x and location.y < self.location.y:
-            for i in range(1):
+            for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((location.x - i),(location.y - i)))) is not EmptySquare:
                     return False
         # Check the east direction
         elif location.x > self.location.x:
-            for i in range(1):
+            for i in range(1, dx):
                 if (type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y)))) is not EmptySquare):
                     return False
         # Check the west direction
         elif location.x < self.location.x:
-            for i in range(1):
+            for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((location.x - i), (location.y)))) is not EmptySquare:
                     return False
         # Check the south direction
         elif location.y > self.location.y:
-            for i in range(1):
+            for i in range(1, dy):
                 if type(game.gameBoard.getPieceFromBoard(Position((location.x), (location.y + i)))) is not EmptySquare:
                     return False
         # Check the north direction
         elif location.y < self.location.y:
-            for i in range(1):
+            for i in range(1, dy):
                 if type(game.gameBoard.getPieceFromBoard(Position((location.x), (location.y - i)))) is not EmptySquare:
                     return False
         return True
