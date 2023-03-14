@@ -1,4 +1,7 @@
+## this is v1 of chess in python
+
 from __future__ import annotations
+from abc import ABC
 from enum import Enum, auto
 import re
 import typing
@@ -19,14 +22,14 @@ def askForMove(message) -> typing.Tuple[SquareLocation, SquareLocation]:
     print(message)
     gotValidMove = False
     while not gotValidMove:
-        userInput = input("Enter your move ing the form of Long Chess Notation (eg., b4-c5): ")
-        # returns True if userInput matches the regular expression groups in longNotationPattern
+        userInput = input("Enter your move in Long Chess Notation (eg., b1-a3): ")
+        # re.search() returns re.Match object which evaluates True if userInput matches the regular expression groups in longNotationPattern
         match = re.search(longNotationPattern, userInput)
         if not match:
             print("Incorrect syntax -- try again")
             continue
 
-        # stores the matching group(1) and group(2) from the user's input as a SquareLocation object instance. These groups represent the rank and file of the source destination in the form of long algebraic notation.
+        # stores the match.group(1) and match.group(2) from the user's input as a SquareLocation object instance. These groups represent the rank and file of the source destination in the form of long algebraic notation.
         sourceLocation = SquareLocation(match.group(1), match.group(2))
         # similary to sourceLocation's comment, destLocation stores the matching group(3) and group(4) from the user's input as a SquareLocation object instance.
         destLocation = SquareLocation(match.group(3), match.group(4))
@@ -48,15 +51,39 @@ def askForMove(message) -> typing.Tuple[SquareLocation, SquareLocation]:
         # if all conditions are not valid, it means the user is trying to move a Piece which isn't their own. repeat the loop.
         print(f"{str(userPieceSelection)} - Wrong colour - try again ")
 
+# Position is the class which is designated as the coordinate-conversion class
+# between the visual representation's coordinate sysetm and the in-memory
+# representat's coordinate system. The only exception to this conversion being for Ranks/Y
+# when the visual representation loop is reversed.
+class Position: 
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y 
 
+    def convertFromRanktoY(self, rank):
+        self.y = 8 - rank
+
+    def convertFromFiletoX(self, file):
+        self.x = ord(file) - ord("a")
+
+    def convertFromFileRanktoXY(self, file, rank):
+        return (self.convertFromFileToX(file), self.convertFromRankToY(rank))
+
+    def setByXY(self, x, y):
+        self.file = x
+        self.rank = y
+        return self
+
+
+# a SquareLocation represents the (File,Rank) of a particular square on the board, as converted to (Y,X)
 class SquareLocation:
     file: int
     rank: int
     file_codes = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
     def __init__(self, file="a", rank=0):
-        self.file = ord(file) - ord("a")
-        self.rank = int(rank) - 1
+        self.file = ord(file) - ord("a") 
+        self.rank = 8 - int(rank)
 
     def __str__(self):
         return f"{str(self.file_codes[self.file])}{str(self.rank + 1)}"
@@ -177,9 +204,10 @@ class ChessBoard:
             str_squares = (str(x) for x in self.board[i])
             fixed_str_squares = (y if y != "" else "''" for y in str_squares)
             line = " ".join(fixed_str_squares)
-            ret = ret + str(8-i) + " " + line + "\n"
+            ret = ret + str(i+1) + " " + line + "\n"
 
-        ret = ret + "  ".join(["a", "b", "c", "d", "e", "f", "g", "h"]) + "\n"
+        ret = ret + "  " + \
+            "  ".join(["a", "b", "c", "d", "e", "f", "g", "h"]) + "\n"
         return ret
 
 
@@ -304,6 +332,48 @@ class QueenPiece(Piece):
         return True
 
 
+class GameBoardFactory(ABC): # factory for providing new game instances. this is an abstract class. it is not real. there is no self to reference, because it will never be initialized.
+    def getEmptyBoard() -> ChessBoard:
+        board = ChessBoard()
+        return board
+    
+    def getStandardBoard() -> ChessBoard:
+        factoryBoard = ChessBoard()
+
+        factoryBoard.board[0][0] = RookPiece        (Colour.BLACK, SquareLocation().setByXY(0,0))
+        factoryBoard.board[0][1] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(0,1))
+        factoryBoard.board[0][2] = BishopPiece      (Colour.BLACK, SquareLocation().setByXY(0,2))
+        factoryBoard.board[0][3] = QueenPiece       (Colour.BLACK, SquareLocation().setByXY(0,3))
+        factoryBoard.board[0][4] = KingPiece        (Colour.BLACK, SquareLocation().setByXY(0,4))
+        factoryBoard.board[0][5] = BishopPiece      (Colour.BLACK, SquareLocation().setByXY(0,5))
+        factoryBoard.board[0][6] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(0,6))
+        factoryBoard.board[0][7] = RookPiece        (Colour.BLACK, SquareLocation().setByXY(0,7))
+        # assign each pawn to it's initial position on the board
+        for i in range(8):
+            factoryBoard.board[1][i] = PawnPiece    (Colour.BLACK, SquareLocation().setByXY(1,i))
+            factoryBoard.board[6][i] = PawnPiece    (Colour.WHITE, SquareLocation().setByXY(6, i))
+        # assign each black piece to it's initial position on the board
+        factoryBoard.board[7][0] = RookPiece        (Colour.WHITE, SquareLocation().setByXY(7,0))
+        factoryBoard.board[7][1] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(7,1))
+        factoryBoard.board[7][2] = BishopPiece      (Colour.WHITE, SquareLocation().setByXY(7,2))
+        factoryBoard.board[7][3] = QueenPiece       (Colour.WHITE, SquareLocation().setByXY(7,3))
+        factoryBoard.board[7][4] = KingPiece        (Colour.WHITE, SquareLocation().setByXY(7,4))
+        factoryBoard.board[7][5] = BishopPiece      (Colour.WHITE, SquareLocation().setByXY(7,5))
+        factoryBoard.board[7][6] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(7,6))
+        factoryBoard.board[7][7] = RookPiece        (Colour.WHITE, SquareLocation().setByXY(7,7))
+
+        return factoryBoard
+
+    def getKnightsOnlyBoard() -> ChessBoard:
+        factoryBoard = ChessBoard()
+
+        factoryBoard.board[0][1] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(0,1))
+        factoryBoard.board[0][6] = KnightPiece      (Colour.BLACK, SquareLocation().setByXY(0,6))
+        factoryBoard.board[7][1] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(7,1))
+        factoryBoard.board[7][6] = KnightPiece      (Colour.WHITE, SquareLocation().setByXY(7,6))
+
+        return factoryBoard
+
 class GameState:
     gameBoard: ChessBoard = ChessBoard()    # gameBoard is a ChessBoard-like object
     # turnCounter starts on 0 and should increment by 1 at the end of each turn.
@@ -311,7 +381,7 @@ class GameState:
     # whichColour indicates whose turn it is (starting with White by default)
     whichTurn: Colour = Colour.WHITE
 
-    # just move the piece; validation is done elsewhere
+    # just move the piece; valibdation is done elsewhere
     def movePiece(self, sourcePiece : Piece, playerMove : typing.Tuple(SquareLocation, SquareLocation)):
         if game.gameBoard.getPieceFromBoard(playerMove[0]).isValidMove(playerMove[1]):
             sourcePiece.location = playerMove[1]
@@ -320,20 +390,22 @@ class GameState:
 
     def moveToNextTurn(self):
         self.turnCounter += 1
-        if game.turnCounter % 2 == 0:
-            game.whichTurn = Colour.WHITE
+        if self.turnCounter % 2 == 0:
+            self.whichTurn = Colour.WHITE
         else:
-            game.whichTurn = Colour.BLACK
+            self.whichTurn = Colour.BLACK
 
 game = GameState()
 
 def main():
+
     while True:
         print("\n")
         print("Here is the game board: \n")
         print(game.gameBoard)
-        # move stores the (SquareLocation, SquareLocation) representing the user's move
+        # move stores the tuple (sourceLocation : SquareLocation, DestLocation : SquareLocation) representing the user's desired move
         move = askForMove(f"It's {str(game.whichTurn)}'s turn")
+        # movePiece(sourcePiece : Piece, playerMove : typing.Tuple(SquareLocation, SquareLocation))
         game.movePiece(game.gameBoard.getPieceFromBoard(move[0]), move)
         game.moveToNextTurn()
         continue
