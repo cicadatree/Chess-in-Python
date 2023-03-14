@@ -1,4 +1,11 @@
-## this is v1 of chess in python
+
+# TODO:
+#       * fix/write validateMove methods in each piece object
+#       * write and implement gameBoard factory, then replace the current hardcoded board state constructor in the GameBoard object.
+#       * evaluate for win/loss condition on each turn
+#       * evaluate for king-in-check condition during move validation
+#       * convert regular expression to short algebraic notation
+#       * 
 
 from __future__ import annotations
 from abc import ABC
@@ -171,9 +178,9 @@ class ChessBoard:
         self.board[6][0] = KnightPiece      (Colour.BLACK, Position().setByXY(6,0))
         self.board[7][0] = RookPiece        (Colour.BLACK, Position().setByXY(7,0))
         # assign each pawn to it's initial position on the board
-        for i in range(8):
-            self.board[i][1] = PawnPiece    (Colour.BLACK, Position().setByXY(i,1))
-            self.board[i][6] = PawnPiece    (Colour.WHITE, Position().setByXY(i,6))
+        # for i in range(8):
+        #     self.board[i][1] = PawnPiece    (Colour.BLACK, Position().setByXY(i,1))
+        #     self.board[i][6] = PawnPiece    (Colour.WHITE, Position().setByXY(i,6))
 
         # assign each black piece to it's initial position on the board
         self.board[0][7] = RookPiece        (Colour.WHITE, Position().setByXY(0,7))
@@ -301,28 +308,28 @@ class BishopPiece(Piece):
         dy = abs(location.y - self.location.y)
 
         # Check if the move is on the diagonal
-        if (7- dx) != dy:
+        if dx != dy:
             return False
 
         # Check the northeast direction
         if location.x > self.location.x and location.y > self.location.y:
             for i in range(1, dx):
-                if ((self.location.x + i),(self.location.y + i)) is not None:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check the northwest direction
         elif location.x < self.location.x and location.y > self.location.y:
             for i in range(1, dx):
-                if (self.location.x - i,self.location.y + i) is not None:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check the southeast direction
         elif location.x > self.location.x and location.y < self.location.y:
             for i in range(1, dx):
-                if (self.location.x + i,self.location.y - i) is not None:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
                     return False
         # Check the southwest direction
         elif location.x < self.location.x and location.y < self.location.y:
             for i in range(1, dx):
-                if (self.location.x - i,self.location.y - i) is not None:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
                     return False
 
         return True
@@ -406,11 +413,12 @@ class GameState:
             game.gameBoard.board[destinationPosition.x][destinationPosition.y] = sourcePiece
             # TODO: based on the note above, I will need to update the gamestate with the lost pieces which are captured (when they are on the destination square). 
             # I'll need to do a test on whether the destination square is occupied during this method.
+            return True
         else:
             # TODO: handle cases when the move is not valid (i.e)
             print("this is not a valid move, try again.")
-            self.doTurn()
-
+            return False
+        
     def moveToNextTurn(self):
         self.turnCounter += 1
         if self.turnCounter % 2 == 0:
@@ -422,7 +430,8 @@ class GameState:
         # move stores the tuple (sourceLocation : Position, DestLocation : Position) representing the user's desired move
         move = askForMove(f"It's {str(game.whichTurn)}'s turn")
         # movePiece(sourcePiece : Piece, destinationPosition : typing.Tuple(Position, Position))
-        game.movePiece(game.gameBoard.getPieceFromBoard(move[0]), move[1])
+        if not game.movePiece(game.gameBoard.getPieceFromBoard(move[0]), move[1]):
+            self.doTurn()
 
 game = GameState()
 
