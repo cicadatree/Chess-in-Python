@@ -16,6 +16,7 @@ import typing
 #   dest_rank = match.group(4)
 longNotationPattern = "^([a-h])([1-8])-([a-h])([1-8])$" 
 
+
 # global utility function for checking if a piece move is valid
 def askForMove(message) -> typing.Tuple[Position, Position]:
     # ask the user to input the X position for the piece they want to move
@@ -72,8 +73,8 @@ class Position:
         return self
 
     def setByXY(self, x, y):
-        self.file = x
-        self.rank = y
+        self.x = x
+        self.y = y
         return self
 
 
@@ -271,14 +272,14 @@ class KnightPiece(Piece):
         super().__init__(colour, location)
 
     def isValidMove(self, targetLocation):
-        x = (7-self.location.x)
+        x = self.location.x
         y = self.location.y
 
         # list of all possible moves
         destinationSquares = [(x+1,y+2),(x-1,y+2),(x+1,y-2),(x-1,y-2),(x+2,y+1),(x-2,y+1),(x+2,y-1),(x-2,y-1)]
 
         # check if target valid for the knight
-        if (targetLocation.y, targetLocation.x) not in destinationSquares:
+        if (targetLocation.x, targetLocation.y) not in destinationSquares:
             return False
 
         # check if target location is out of bounds
@@ -394,11 +395,21 @@ class GameState:
     whichTurn: Colour = Colour.WHITE
 
     # just move the piece; valibdation is done elsewhere
-    def movePiece(self, sourcePiece : Piece, playerMove : typing.Tuple(Position, Position)):
-        if game.gameBoard.getPieceFromBoard(playerMove[0]).isValidMove(playerMove[1]):
-            sourcePiece.location = playerMove[1]
-            game.gameBoard.board[playerMove[1].x][playerMove[1].y] = sourcePiece
-            game.gameBoard.board[playerMove[0].x][playerMove[0].y] = EmptySquare()
+    def movePiece(self, sourcePiece : Piece, destinationPosition : Position):
+        if sourcePiece.isValidMove(destinationPosition):
+            # first, take the sourcePiece off the board (by replacing it with an EmptySquare)
+            game.gameBoard.board[sourcePiece.location.x][sourcePiece.location.y] = EmptySquare()
+            # next, assign the location of the source piece to the destination position (this is in the in-memory representation of the source piece)
+            sourcePiece.location = destinationPosition
+            # finally, update the in-memory representation of the board by putting the source piece on the destination position.
+            # note that this will also destroy any underlying piece on the destination square. 
+            game.gameBoard.board[destinationPosition.x][destinationPosition.y] = sourcePiece
+            # TODO: based on the note above, I will need to update the gamestate with the lost pieces which are captured (when they are on the destination square). 
+            # I'll need to do a test on whether the destination square is occupied during this method.
+        else:
+            # TODO: handle cases when the move is not valid (i.e)
+            print("this is not a valid move, try again.")
+            self.doTurn()
 
     def moveToNextTurn(self):
         self.turnCounter += 1
@@ -406,6 +417,12 @@ class GameState:
             self.whichTurn = Colour.WHITE
         else:
             self.whichTurn = Colour.BLACK
+
+    def doTurn(self):
+        # move stores the tuple (sourceLocation : Position, DestLocation : Position) representing the user's desired move
+        move = askForMove(f"It's {str(game.whichTurn)}'s turn")
+        # movePiece(sourcePiece : Piece, destinationPosition : typing.Tuple(Position, Position))
+        game.movePiece(game.gameBoard.getPieceFromBoard(move[0]), move[1])
 
 game = GameState()
 
@@ -415,10 +432,7 @@ def main():
         print("\n")
         print("Here is the game board: \n")
         print(game.gameBoard)
-        # move stores the tuple (sourceLocation : Position, DestLocation : Position) representing the user's desired move
-        move = askForMove(f"It's {str(game.whichTurn)}'s turn")
-        # movePiece(sourcePiece : Piece, playerMove : typing.Tuple(Position, Position))
-        game.movePiece(game.gameBoard.getPieceFromBoard(move[0]), move)
+        game.doTurn()
         game.moveToNextTurn()
         continue
 
