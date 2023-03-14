@@ -180,52 +180,27 @@ class RookPiece(Piece):
         if dx != 0 and dy != 0:
             return False
 
-        # Check the northeast direction
+        # Check the east direction
         if location.x > self.location.x:
             for i in range(1, dx):
-                if ((self.location.x + i),(self.location.y)) is not None:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare:
                     return False
-        # Check the northwest direction
+        # Check the west direction
         elif location.x < self.location.x:
             for i in range(1, dx):
                 if (self.location.x - i, self.location.y + i) is not None:
                     return False
-        # Check the southeast direction
+        # Check the south direction
         elif location.y < self.location.y:
             for i in range(1, dx):
                 if (self.location.x, self.location.y - i) is not None:
                     return False
-        # Check the southwest direction
+        # Check the north direction
         elif location.y < self.location.y:
             for i in range(1, dx):
                 if (self.location.x, self.location.y - i) is not None:
                     return False
 
-        return True
-
-
-class KnightPiece(Piece):
-    def __init__(self, colour, location : Position):
-        super().__init__(colour, location)
-
-    def isValidMove(self, targetLocation):
-        x = self.location.x
-        y = self.location.y
-
-        # list of all possible moves
-        destinationSquares = [(x+1,y+2),(x-1,y+2),(x+1,y-2),(x-1,y-2),(x+2,y+1),(x-2,y+1),(x+2,y-1),(x-2,y-1)]
-
-        # check if target valid for the knight
-        if (targetLocation.x, targetLocation.y) not in destinationSquares:
-            return False
-
-        # check if target location is out of bounds
-        if (targetLocation.x < 0 and targetLocation.x > 7) and (targetLocation.y < 0 and targetLocation.y > 7):
-            return False
-
-        if game.gameBoard.getPieceFromBoard(targetLocation).getColour() == game.whichTurn:
-            return False
-       
         return True
 
 
@@ -265,6 +240,31 @@ class BishopPiece(Piece):
         return True
 
 
+class KnightPiece(Piece):
+    def __init__(self, colour, location : Position):
+        super().__init__(colour, location)
+
+    def isValidMove(self, targetLocation):
+        x = self.location.x
+        y = self.location.y
+
+        # list of all possible moves
+        destinationSquares = [(x+1,y+2),(x-1,y+2),(x+1,y-2),(x-1,y-2),(x+2,y+1),(x-2,y+1),(x+2,y-1),(x-2,y-1)]
+
+        # check if target valid for the knight
+        if (targetLocation.x, targetLocation.y) not in destinationSquares:
+            return False
+
+        # check if target location is out of bounds
+        if (targetLocation.x < 0 and targetLocation.x > 7) and (targetLocation.y < 0 and targetLocation.y > 7):
+            return False
+
+        if game.gameBoard.getPieceFromBoard(targetLocation).getColour() == game.whichTurn:
+            return False
+       
+        return True
+
+
 class KingPiece(Piece):
     def __init__(self, colour, location : Position):
         super().__init__(colour, location)
@@ -296,9 +296,9 @@ class ChessBoard:
         self.board[6][0] = KnightPiece      (Colour.BLACK, Position().setByXY(6,0))
         self.board[7][0] = RookPiece        (Colour.BLACK, Position().setByXY(7,0))
         # assign each pawn to it's initial position on the board
-        for i in range(8):
-             self.board[i][1] = PawnPiece    (Colour.BLACK, Position().setByXY(i,1))
-             self.board[i][6] = PawnPiece    (Colour.WHITE, Position().setByXY(i,6))
+        # for i in range(8):
+        #      self.board[i][1] = PawnPiece    (Colour.BLACK, Position().setByXY(i,1))
+        #      self.board[i][6] = PawnPiece    (Colour.WHITE, Position().setByXY(i,6))
 
         # assign each black piece to it's initial position on the board
         self.board[0][7] = RookPiece        (Colour.WHITE, Position().setByXY(0,7))
