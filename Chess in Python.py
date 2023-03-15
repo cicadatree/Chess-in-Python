@@ -165,7 +165,17 @@ class PawnPiece(Piece):
     def __init__(self, colour, location : Position):
         super().__init__(colour, location)
 
-    def isValidMove(self):
+    def isValidMove(self, location : Position):
+        dx = abs(location.x - self.location.x)
+        dy = abs(location.y - self.location.y)
+
+        if dx > 0 or dy > 1:
+            return False
+
+        if location.y < self.location.y:
+            for i in range(1, dy):
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
+                    return False
 
         return True
 
@@ -182,22 +192,22 @@ class RookPiece(Piece):
         if dx != 0 and dy != 0:
             return False
 
-        # Check the east direction
+        # Check for pieces in the east direction
         if location.x > self.location.x:
             for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare:
                     return False
-        # Check the west direction
+        # Check for pieces in the west direction
         elif location.x < self.location.x:
             for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i), (self.location.y)))) is not EmptySquare:
                     return False
-        # Check the south direction
+        # Check for pieces in the south direction
         elif location.y > self.location.y:
             for i in range(1, dy):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
                     return False
-        # Check the north direction
+        # Check for pieces in the north direction
         elif location.y < self.location.y:
             for i in range(1, dy):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
@@ -218,22 +228,22 @@ class BishopPiece(Piece):
         if dx != dy:
             return False
 
-        # Check the northeast direction
+        # Check for pieces in the northeast direction
         if location.x > self.location.x and location.y > self.location.y:
             for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
                     return False
-        # Check the northwest direction
+        # Check for pieces in the northwest direction
         elif location.x < self.location.x and location.y > self.location.y:
             for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
                     return False
-        # Check the southeast direction
+        # Check for pieces in the southeast direction
         elif location.x > self.location.x and location.y < self.location.y:
             for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
                     return False
-        # Check the southwest direction
+        # Check for pieces in the southwest direction
         elif location.x < self.location.x and location.y < self.location.y:
             for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
@@ -277,42 +287,42 @@ class KingPiece(Piece):
 
         if dx > 1 or dy > 1:
             return False
-        # check the southeast direction
+        # Check for pieces in the southeast direction
         if location.x > self.location.x and location.y > self.location.y:
             for i in range(1):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
                     return False
-        # Check the southwest direction
+        # Check for pieces in the southwest direction
         elif location.x < self.location.x and location.y > self.location.y:
             for i in range(1):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
                     return False
-        # Check the northeast direction
+        # Check for pieces in the northeast direction
         elif location.x > self.location.x and location.y < self.location.y:
             for i in range(1):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
                     return False
-        # Check the northwest direction
+        # Check for pieces in the northwest direction
         elif location.x < self.location.x and location.y < self.location.y:
             for i in range(1):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
                     return False
-        # Check the east direction
+        # Check for pieces in the east direction
         elif location.x > self.location.x:
             for i in range(1):
                 if (type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare):
                     return False
-        # Check the west direction
+        # Check for pieces in the west direction
         elif location.x < self.location.x:
             for i in range(1):
                 if type(game.gameBoard.getPieceFromBoard(Position((location.x - i), (location.y)))) is not EmptySquare:
                     return False
-        # Check the south direction
+        # Check for pieces in the south direction
         elif location.y > self.location.y:
             for i in range(1):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
                     return False
-        # Check the north direction
+        # Check for pieces in the north direction
         elif location.y < self.location.y:
             for i in range(1):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
@@ -332,42 +342,42 @@ class QueenPiece(Piece):
         if dx != dy and (dx != 0 and dy != 0):
             return False
         
-        # check the southeast direction
+        # Check for pieces in the southeast direction
         if location.x > self.location.x and location.y > self.location.y:
             for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
                     return False
-        # Check the southwest direction
+        # Check for pieces in the southwest direction
         elif location.x < self.location.x and location.y > self.location.y:
             for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
                     return False
-        # Check the northeast direction
+        # Check for pieces in the northeast direction
         elif location.x > self.location.x and location.y < self.location.y:
             for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
                     return False
-        # Check the northwest direction
+        # Check for pieces in the northwest direction
         elif location.x < self.location.x and location.y < self.location.y:
             for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
                     return False
-        # Check the east direction
+        # Check for pieces in the east direction
         elif location.x > self.location.x:
             for i in range(1, dx):
                 if (type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare):
                     return False
-        # Check the west direction
+        # Check for pieces in the west direction
         elif location.x < self.location.x:
             for i in range(1, dx):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i), (self.location.y)))) is not EmptySquare:
                     return False
-        # Check the south direction
+        # Check for pieces in the south direction
         elif location.y > self.location.y:
             for i in range(1, dy):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
                     return False
-        # Check the north direction
+        # Check for pieces in the north direction
         elif location.y < self.location.y:
             for i in range(1, dy):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
