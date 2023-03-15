@@ -79,7 +79,7 @@ class Position:
         self.y = y
         return self
 
-#### SquareLocation has been deprecated and replaced by Position, and should be archived / removed at some point
+#### NOTE: the SquareLocation class has been deprecated, replaced by the Position class, and should be archived / removed at some point in the future
 ###
 ##
 # class SquareLocation:
@@ -151,7 +151,7 @@ class Piece:
             return "B"
         else:
             return "''"
-            
+
 
     __repr__ = __str__
 
@@ -166,6 +166,7 @@ class PawnPiece(Piece):
         super().__init__(colour, location)
 
     def isValidMove(self):
+
         return True
 
 
@@ -203,8 +204,6 @@ class RookPiece(Piece):
                     return False
 
         return True
-
-
 
 
 class BishopPiece(Piece):
@@ -281,27 +280,27 @@ class KingPiece(Piece):
         # check the southeast direction
         if location.x > self.location.x and location.y > self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y + i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check the southwest direction
         elif location.x < self.location.x and location.y > self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x - i),(location.y + i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check the northeast direction
         elif location.x > self.location.x and location.y < self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y - i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
                     return False
         # Check the northwest direction
         elif location.x < self.location.x and location.y < self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x - i),(location.y - i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
                     return False
         # Check the east direction
         elif location.x > self.location.x:
             for i in range(1):
-                if (type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y)))) is not EmptySquare):
+                if (type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare):
                     return False
         # Check the west direction
         elif location.x < self.location.x:
@@ -311,14 +310,14 @@ class KingPiece(Piece):
         # Check the south direction
         elif location.y > self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x), (location.y + i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
                     return False
         # Check the north direction
         elif location.y < self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x), (location.y - i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
                     return False
-                
+
         return True
 
 
@@ -326,9 +325,6 @@ class QueenPiece(Piece):
     def __init__(self, colour, location : Position):
         super().__init__(colour, location)
 
-
-    # TODO: queen movement works, but it's not doing piece collision detection
-    
     def isValidMove(self, location : Position):
         dx = abs(location.x - self.location.x)
         dy = abs(location.y - self.location.y)
@@ -339,42 +335,42 @@ class QueenPiece(Piece):
         # check the southeast direction
         if location.x > self.location.x and location.y > self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y + i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check the southwest direction
         elif location.x < self.location.x and location.y > self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x - i),(location.y + i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check the northeast direction
         elif location.x > self.location.x and location.y < self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y - i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
                     return False
         # Check the northwest direction
         elif location.x < self.location.x and location.y < self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x - i),(location.y - i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
                     return False
         # Check the east direction
         elif location.x > self.location.x:
             for i in range(1, dx):
-                if (type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y)))) is not EmptySquare):
+                if (type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare):
                     return False
         # Check the west direction
         elif location.x < self.location.x:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x - i), (location.y)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i), (self.location.y)))) is not EmptySquare:
                     return False
         # Check the south direction
         elif location.y > self.location.y:
             for i in range(1, dy):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x), (location.y + i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
                     return False
         # Check the north direction
         elif location.y < self.location.y:
             for i in range(1, dy):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x), (location.y - i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
                     return False
         return True
 
@@ -394,9 +390,9 @@ class ChessBoard:
         self.board[6][0] = KnightPiece      (Colour.BLACK, Position().setByXY(6,0))
         self.board[7][0] = RookPiece        (Colour.BLACK, Position().setByXY(7,0))
         # assign each pawn to it's initial position on the board
-        # for i in range(8):
-        #      self.board[i][1] = PawnPiece    (Colour.BLACK, Position().setByXY(i,1))
-        #      self.board[i][6] = PawnPiece    (Colour.WHITE, Position().setByXY(i,6))
+        for i in range(8):
+            self.board[i][1] = PawnPiece    (Colour.BLACK, Position().setByXY(i,1))
+            self.board[i][6] = PawnPiece    (Colour.WHITE, Position().setByXY(i,6))
 
         # assign each black piece to it's initial position on the board
         self.board[0][7] = RookPiece        (Colour.WHITE, Position().setByXY(0,7))
