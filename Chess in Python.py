@@ -79,35 +79,6 @@ class Position:
         self.y = y
         return self
 
-#### NOTE: the SquareLocation class has been deprecated, replaced by the Position class, and should be archived / removed at some point in the future
-###
-##
-# class SquareLocation:
-#     file: int
-#     rank: int
-#     file_codes = ["a", "b", "c", "d", "e", "f", "g", "h"]
-
-#     def __init__(self, file="a", rank=0):
-#         self.file = ord(file) - ord("a") 
-#         self.rank = 8 - int(rank)
-
-#     def __str__(self):
-#         return f"{str(self.file_codes[self.file])}{str(self.rank + 1)}"
-
-#     def setByXY(self, x, y):
-#         self.file = x
-#         self.rank = y
-#         return self
-
-#     def get_x(self) -> int:
-#         return (self.file)
-
-#     def get_y(self) -> int:
-#         return (7 - self.rank)
-
-#     x = property(get_x)
-#     y = property(get_y)
-
 
 class Colour(Enum):  # enumerate white and black
     WHITE = auto()
@@ -152,7 +123,6 @@ class Piece:
         else:
             return "''"
 
-
     __repr__ = __str__
 
 
@@ -169,15 +139,27 @@ class PawnPiece(Piece):
         dx = abs(location.x - self.location.x)
         dy = abs(location.y - self.location.y)
 
-        if dx > 0 or dy > 1:
+        # move check
+        if dy > 1:
             return False
-
+        # check for pieces in the north direction
         if location.y < self.location.y:
-            for i in range(1, dy):
+            for i in range(1):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
-                    return False
-
+                    if dx > 0 and dx < 2:
+                        # check for pieces in the northwest direction
+                        if location.x < self.location.x:
+                            for i in range(1):
+                                if type(game.gameBoard.getPieceFromBoard(Position((location.x - i),(location.y - i)))) is not EmptySquare:
+                                    return True
+                        # check for pieces in the northeast direction
+                        if location.x > self.location.x:
+                            for i in range(1):
+                                if type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y)))) is not EmptySquare:
+                                    return True
+                        return False
         return True
+
 
 
 class RookPiece(Piece):
@@ -341,7 +323,7 @@ class QueenPiece(Piece):
 
         if dx != dy and (dx != 0 and dy != 0):
             return False
-        
+
         # Check for pieces in the southeast direction
         if location.x > self.location.x and location.y > self.location.y:
             for i in range(1, dx):
@@ -392,7 +374,7 @@ class ChessBoard:
     def __init__(self):  # initialize the board with Piecesd
         # assigns each white piece to it's initial position on the board
         self.board[0][0] = RookPiece        (Colour.BLACK, Position().setByXY(0,0))
-        self.board[1][0] = KnightPiece      (Colour.BLACK, Position().setByXY(1,0))
+        self.board[1][0] = KnightPiece        (Colour.BLACK, Position().setByXY(1,0))
         self.board[2][0] = BishopPiece      (Colour.BLACK, Position().setByXY(2,0))
         self.board[3][0] = QueenPiece       (Colour.BLACK, Position().setByXY(3,0))
         self.board[4][0] = KingPiece        (Colour.BLACK, Position().setByXY(4,0))
@@ -411,7 +393,7 @@ class ChessBoard:
         self.board[3][7] = QueenPiece       (Colour.WHITE, Position().setByXY(3,7))
         self.board[4][7] = KingPiece        (Colour.WHITE, Position().setByXY(4,7))
         self.board[5][7] = BishopPiece      (Colour.WHITE, Position().setByXY(5,7))
-        self.board[6][7] = KnightPiece      (Colour.WHITE, Position().setByXY(6,7))
+        self.board[6][7] = PawnPiece        (Colour.BLACK, Position().setByXY(6,7))
         self.board[7][7] = RookPiece        (Colour.WHITE, Position().setByXY(7,7))
 
     def getPieceFromBoard(self, location : Position) -> Piece: # method to find the piece on a specified position of the board
@@ -544,3 +526,38 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+##### ARCHIVE:
+
+#### NOTE: the SquareLocation class has been deprecated, replaced by the Position class, and should be archived / removed at some point in the future
+###
+##
+# class SquareLocation:
+#     file: int
+#     rank: int
+#     file_codes = ["a", "b", "c", "d", "e", "f", "g", "h"]
+
+#     def __init__(self, file="a", rank=0):
+#         self.file = ord(file) - ord("a") 
+#         self.rank = 8 - int(rank)
+
+#     def __str__(self):
+#         return f"{str(self.file_codes[self.file])}{str(self.rank + 1)}"
+
+#     def setByXY(self, x, y):
+#         self.file = x
+#         self.rank = y
+#         return self
+
+#     def get_x(self) -> int:
+#         return (self.file)
+
+#     def get_y(self) -> int:
+#         return (7 - self.rank)
+
+#     x = property(get_x)
+#     y = property(get_y)
+
