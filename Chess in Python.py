@@ -23,17 +23,7 @@ import typing
 #   dest_rank = match.group(4)
 longNotationPattern = "^([a-h])([1-8])-([a-h])([1-8])$"
 
-# global utility function that can be called whenever you need to check if a King is in check. 
-def isKingCheck(colour : Colour): 
-    # Get that colour's king Position
 
-    # Iterate over the current board, and for each Piece use the isValidMove method (passing the King's position in as the destinationLocation for the method). 
-
-    # If all pieces' isValidMove return False, then isKingCheck returns false,
-
-    # else return True (meaning the king is in check)
-    
-    return False
 
 # global utility function for checking if a piece move is valid
 def askForMove(message : str) -> typing.Tuple[Position, Position]:
@@ -109,6 +99,8 @@ class Position:
 
 
 class Piece:
+    colour: Colour
+    location: Position
     def __init__(self, colour : Colour, location : Position):
         self.colour = colour
         self.location = location
@@ -142,33 +134,41 @@ class EmptySquare(Piece):
     def __init__(self):
         super().__init__(Colour.UNDEF, Position())
 
+    # location is a placeholder required for the isKingCheck method
+    def isValidMove(self, location):
+        return False
+
 
 class PawnPiece(Piece):
     def __init__(self, colour, location : Position):
         super().__init__(colour, location)
 
-    def isValidMove(self, destinationLocation : Position):
-        dx = abs(destinationLocation.x - self.location.x)
-        dy = abs(destinationLocation.y - self.location.y)
+    def isValidMove(self, location : Position):
+        dx = abs(location.x - self.location.x)
+        dy = abs(location.y - self.location.y)
+
+        #make sure you're not trying to validate a move that would land on one of your own pieces
+        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+            return False
 
         if dy > 1:
             return False
         # check for pieces in the north direction
-        if destinationLocation.y < self.location.y:
+        if location.y < self.location.y:
             for i in range(1):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
                     return False
         if dx < 0 and dx > 1:
             return False
         # check for pieces in the northwest direction
-        if destinationLocation.x < self.location.x:
+        if location.x < self.location.x:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((destinationLocation.x - i),(destinationLocation.y - i)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((location.x - i),(location.y - i)))) is not EmptySquare:
                     return False
         # check for pieces in the northeast direction
-        elif destinationLocation.x > self.location.x:
+        elif location.x > self.location.x:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((destinationLocation.x + i),(destinationLocation.y)))) is not EmptySquare:
+                if type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y)))) is not EmptySquare:
                     return False
         return True
 
@@ -180,6 +180,10 @@ class RookPiece(Piece):
     def isValidMove(self, location : Position):
         dx = abs(location.x - self.location.x)
         dy = abs(location.y - self.location.y)
+
+        #make sure you're not trying to validate a move that would land on one of your own pieces
+        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+            return False
 
         # Check if the move is on the cardinal
         if dx != 0 and dy != 0:
@@ -216,6 +220,10 @@ class BishopPiece(Piece):
         dx = abs(location.x - self.location.x)
         dy = abs(location.y - self.location.y)
 
+        #make sure you're not trying to validate a move that would land on one of your own pieces
+        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+            return False
+
         # Check if the move is on the diagonal
         if dx != dy:
             return False
@@ -251,6 +259,10 @@ class KnightPiece(Piece):
         x = self.location.x
         y = self.location.y
 
+        #make sure you're not trying to validate a move that would land on one of your own pieces
+        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+            return False
+
         # list of all possible moves
         destinationSquares = [(x+1,y+2),(x-1,y+2),(x+1,y-2),(x-1,y-2),(x+2,y+1),(x-2,y+1),(x+2,y-1),(x-2,y-1)]
 
@@ -272,6 +284,10 @@ class KingPiece(Piece):
     def isValidMove(self, location : Position):
         dx = abs(location.x - self.location.x)
         dy = abs(location.y - self.location.y)
+
+        #make sure you're not trying to validate a move that would land on one of your own pieces
+        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+            return False
 
         if dx > 1 or dy > 1:
             return False
@@ -326,6 +342,11 @@ class QueenPiece(Piece):
         dx = abs(location.x - self.location.x)
         dy = abs(location.y - self.location.y)
 
+        #make sure you're not trying to validate a move that would land on one of your own pieces
+        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+            return False
+
+        # make sure that the destination location is on a cardinal (diagonal) line of sight
         if dx != dy and (dx != 0 and dy != 0):
             return False
 
@@ -370,6 +391,8 @@ class QueenPiece(Piece):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
                     return False
         return True
+
+
 
 
 class ChessBoard:
@@ -444,11 +467,17 @@ class GameBoardFactory(ABC): # factory for providing new game instances. this is
 
 
 class GameState:
-    gameBoard: GameBoardFactory = GameBoardFactory.getStandardBoard()   # gameBoard is a ChessBoard-like object
+    gameBoard: ChessBoard = GameBoardFactory.getStandardBoard()   # gameBoard is a ChessBoard-like object
     # turnCounter starts on 0 and should increment by 1 at the end of each turn.
     turnCounter: int = 0
     # whichColour indicates whose turn it is (starting with White by default)
     whichTurn: Colour = Colour.WHITE
+
+    # kingDict stores key:value pair of Colour:kingPosition, which is updated each turn. Designed to keep track of each colour's king position for reference in the isKingCheck function
+    kingDict = {}
+    # these two lists should store the list of pieces (for each respective colour) which are still on the board. By default, all pieces are on the board. When a piece captures another piece, new behaviour has to be written to remove them from this list.
+    whitePiecesOnBoard = []
+    blackPiecesOnBoard = []
 
     # just move the piece; valibdation is done elsewhere
     def movePiece(self, sourcePiece : Piece, destinationPosition : Position):
@@ -482,8 +511,23 @@ class GameState:
         if not game.movePiece(game.gameBoard.getPieceFromBoard(move[0]), move[1]):
             self.doTurn()
 
-
 game = GameState()
+
+# global utility function that can be called whenever you need to check if a King is in check. 
+def isKingCheck(colour : Colour): 
+    # Get the colour's king Position
+    for i in range(8):
+        for j in range(8):
+            if type(game.gameBoard.board[i][j]) is KingPiece and colour == game.gameBoard.board[i][j].colour:
+                correctKingPos = game.gameBoard.board[i][j].location
+
+    # Iterate over the current board, and for each Piece use the isValidMove method (passing the King's position in as the destinationLocation for the method). 
+    for i in range(8):
+        for j in range(8):
+            # If the piece being evaluated puts the king in check, then isKingCheck returns True
+            if type(game.gameBoard.board[i][j]) is not EmptySquare and game.gameBoard.board[i][j].isValidMove(correctKingPos) == True:
+                return True
+    return False
 
 def main():
 
@@ -492,6 +536,7 @@ def main():
         print("Here is the game board: \n")
         print(game.gameBoard)
         game.doTurn()
+        isKingCheck(Colour.WHITE)
         game.moveToNextTurn()
         continue
 
