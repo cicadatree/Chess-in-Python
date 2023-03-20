@@ -154,23 +154,21 @@ class PawnPiece(Piece):
         if dy > 1 or dx > 1:
             return False
 
-        # check for pieces in the north direction
-        if location.y < self.location.y:
-            for i in range(1,dy):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
-                    return False
-
-        ## check for captures on the diagonals
-        # starting with a check in the West direction
-        if location.x < self.location.x:
-            for i in range(1,dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x - i),(location.y)))) is EmptySquare:
-                    return False
-        # and then a check in the East direction
-        elif location.x > self.location.x:
-            for i in range(1,dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y)))) is EmptySquare:
-                    return False
+        # check for pieces in the north direction only (no x-axis movement required per the user's inputted move)
+        if location.y < self.location.y and dx < 2:
+            if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - dy)))) is not EmptySquare:
+                return False
+            else:
+                if location.x < self.location.x:
+                    if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - dx),(self.location.y)))) is not EmptySquare:
+                        return False
+                # and then a check in the Northeast direction
+                elif location.x > self.location.x:
+                    if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + dx),(self.location.y)))) is not EmptySquare:
+                        return False
+                elif dx == 0:
+                    return True
+                return False
         return True
 
 
@@ -256,7 +254,7 @@ class KnightPiece(Piece):
     def __init__(self, colour, location : Position):
         super().__init__(colour, location)
 
-    def isValidMove(self, location):
+    def isValidMove(self, location : Position):
         x = self.location.x
         y = self.location.y
 
