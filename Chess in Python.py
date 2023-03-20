@@ -166,7 +166,7 @@ class PawnPiece(Piece):
                 elif location.x > self.location.x:
                     if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + dx),(self.location.y)))) is not EmptySquare:
                         return False
-                elif dx == 0:
+                elif dx < 1:
                     return True
                 return False
         return True
@@ -451,6 +451,7 @@ class GameBoardFactory(ABC): # factory for providing new game instances. this is
         for i in range(8):
             factoryBoard.board[i][1] = PawnPiece    (Colour.BLACK, Position().setByXY(i,1))
             factoryBoard.board[i][6] = PawnPiece    (Colour.WHITE, Position().setByXY(i,6))
+
         # assign each black piece to it's initial position on the board
         factoryBoard.board[0][7] = RookPiece        (Colour.WHITE, Position().setByXY(0,7))
         factoryBoard.board[1][7] = KnightPiece      (Colour.WHITE, Position().setByXY(1,7))
