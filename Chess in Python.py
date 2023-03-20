@@ -24,7 +24,6 @@ import typing
 longNotationPattern = "^([a-h])([1-8])-([a-h])([1-8])$"
 
 
-
 # global utility function for checking if a piece move is valid
 def askForMove(message : str) -> typing.Tuple[Position, Position]:
     # ask the user to input the X position for the piece they want to move
@@ -138,7 +137,7 @@ class EmptySquare(Piece):
     def isValidMove(self, location):
         return False
 
-
+# TODO: pawn movement is weird. I need to fix it. 
 class PawnPiece(Piece):
     def __init__(self, colour, location : Position):
         super().__init__(colour, location)
@@ -150,25 +149,27 @@ class PawnPiece(Piece):
         #make sure you're not trying to validate a move that would land on one of your own pieces
         if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
             return False
-
-        if dy > 1:
+        
+        # check if you're trying to move the pawn more than 1 space in any direction
+        if dy > 1 or dx > 1:
             return False
+
         # check for pieces in the north direction
         if location.y < self.location.y:
-            for i in range(1):
+            for i in range(1,dy):
                 if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
                     return False
-        if dx < 0 and dx > 1:
-            return False
-        # check for pieces in the northwest direction
+
+        ## check for captures on the diagonals
+        # starting with a check in the West direction
         if location.x < self.location.x:
-            for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x - i),(location.y - i)))) is not EmptySquare:
+            for i in range(1,dx):
+                if type(game.gameBoard.getPieceFromBoard(Position((location.x - i),(location.y)))) is EmptySquare:
                     return False
-        # check for pieces in the northeast direction
+        # and then a check in the East direction
         elif location.x > self.location.x:
-            for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y)))) is not EmptySquare:
+            for i in range(1,dx):
+                if type(game.gameBoard.getPieceFromBoard(Position((location.x + i),(location.y)))) is EmptySquare:
                     return False
         return True
 
@@ -255,7 +256,7 @@ class KnightPiece(Piece):
     def __init__(self, colour, location : Position):
         super().__init__(colour, location)
 
-    def isValidMove(self, targetLocation):
+    def isValidMove(self, location):
         x = self.location.x
         y = self.location.y
 
@@ -267,12 +268,12 @@ class KnightPiece(Piece):
         destinationSquares = [(x+1,y+2),(x-1,y+2),(x+1,y-2),(x-1,y-2),(x+2,y+1),(x-2,y+1),(x+2,y-1),(x-2,y-1)]
 
         # check if target valid for the knight
-        if (targetLocation.x, targetLocation.y) not in destinationSquares:
+        if (location.x, location.y) not in destinationSquares:
             return False
         # check if target location is out of bounds
-        if (targetLocation.x < 0 and targetLocation.x > 7) and (targetLocation.y < 0 and targetLocation.y > 7):
+        if (location.x < 0 and location.x > 7) and (location.y < 0 and location.y > 7):
             return False
-        if game.gameBoard.getPieceFromBoard(targetLocation).getColour() == game.whichTurn:
+        if game.gameBoard.getPieceFromBoard(location).getColour() == game.whichTurn:
             return False
         return True
 
@@ -465,7 +466,6 @@ class GameBoardFactory(ABC): # factory for providing new game instances. this is
         return factoryBoard
 
 
-
 class GameState:
     gameBoard: ChessBoard = GameBoardFactory.getStandardBoard()   # gameBoard is a ChessBoard-like object
     # turnCounter starts on 0 and should increment by 1 at the end of each turn.
@@ -536,7 +536,7 @@ def main():
         print("Here is the game board: \n")
         print(game.gameBoard)
         game.doTurn()
-        isKingCheck(Colour.WHITE)
+        # isKingCheck(Colour.WHITE)
         game.moveToNextTurn()
         continue
 
