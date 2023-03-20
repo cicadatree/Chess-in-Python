@@ -1,7 +1,4 @@
-# NOTE: BIG PROBLEM: YOU CAN CAPTURE YOUR OWN PIECES. SOLVE THAT LOL
-
 # TODO:
-#       * finishing writing and implementing the gameBoard factory, then replace the current hardcoded board state constructor in the GameBoard object with it.
 #       * evaluate for win/loss condition on each turn
 #       * evaluate for king-in-check condition during move validation
 #       * evaluate for king-in-checkmate condition
@@ -23,7 +20,57 @@ import typing
 #   dest_rank = match.group(4)
 longNotationPattern = "^([a-h])([1-8])-([a-h])([1-8])$"
 
-
+# basic evaluation function which iterates over the board and calculates the given player's score
+def evaluateBoard(board):
+    whiteScore = 0
+    blackScore = 0
+    for i in range(8):
+        for j in range(8):
+            if game.whichTurn == Colour.WHITE:
+                piece = game.gameBoard.board[i][j]
+                if str(piece) == 'WP':
+                    whiteScore += 1
+                elif str(piece)  == 'WN' or piece == 'WB':
+                    whiteScore += 3
+                elif str(piece)  == 'WR':
+                    whiteScore += 5
+                elif str(piece)  == 'WQ':
+                    whiteScore += 9
+                elif str(piece)  == 'BP':
+                    whiteScore -= 1
+                elif str(piece)  == 'BN' or piece == 'BB':
+                    whiteScore -= 3
+                elif str(piece)  == 'BR':
+                    whiteScore -= 5
+                elif str(piece)  == 'BQ':
+                    whiteScore -= 9
+                elif str(piece) == "''":
+                    whiteScore += 0
+                else:
+                    return whiteScore
+            elif game.whichTurn == Colour.BLACK:
+                piece = game.gameBoard.board[i][j]
+                if str(piece) == 'WP':
+                    blackScore -= 1
+                elif str(piece) == 'WN' or str(piece) == 'WB':
+                    blackScore -= 3
+                elif str(piece) == 'WR':
+                    blackScore -= 5
+                elif str(piece) == 'WQ':
+                    blackScore -= 9
+                elif str(piece) == 'BP':
+                    blackScore += 1
+                elif str(piece) == 'BN' or str(piece) == 'BB':
+                    blackScore += 3
+                elif str(piece) == 'BR':
+                    blackScore += 5
+                elif str(piece) == 'BQ':
+                    blackScore += 9
+                elif str(piece) == "''":
+                    blackScore += 0
+                else:
+                    return blackScore
+                
 # global utility function for checking if a piece move is valid
 def askForMove(message : str) -> typing.Tuple[Position, Position]:
     # ask the user to input the X position for the piece they want to move
@@ -399,8 +446,6 @@ class QueenPiece(Piece):
         return True
 
 
-
-
 class ChessBoard:
     # define the initial board as a 2D array, where '' represents an empty square
     board = [[EmptySquare() for j in range(8)] for i in range(8)]
@@ -513,6 +558,7 @@ class GameState:
     def doTurn(self):
         # move stores the tuple (sourceLocation : Position, DestLocation : Position) representing the user's desired move
         move = askForMove(f"It's {str(game.whichTurn)}'s turn")
+        print(f"\n{str(game.whichTurn)}'s score is: {evaluateBoard(game.gameBoard.board)}")
         # movePiece(sourcePiece : Piece, destinationPosition : typing.Tuple(Position, Position))
         if not game.movePiece(game.gameBoard.getPieceFromBoard(move[0]), move[1]):
             self.doTurn()
@@ -548,65 +594,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-##### ARCHIVE:
-
-#### NOTE: the SquareLocation class has been deprecated, replaced by the Position class, and should be archived / removed at some point in the future
-###
-##
-# class SquareLocation:
-#     file: int
-#     rank: int
-#     file_codes = ["a", "b", "c", "d", "e", "f", "g", "h"]
-
-#     def __init__(self, file="a", rank=0):
-#         self.file = ord(file) - ord("a") 
-#         self.rank = 8 - int(rank)
-
-#     def __str__(self):
-#         return f"{str(self.file_codes[self.file])}{str(self.rank + 1)}"
-
-#     def setByXY(self, x, y):
-#         self.file = x
-#         self.rank = y
-#         return self
-
-#     def get_x(self) -> int:
-#         return (self.file)
-
-#     def get_y(self) -> int:
-#         return (7 - self.rank)
-
-#     x = property(get_x)
-#     y = property(get_y)
-#
-#
-#### initializer in the ChessBoard object (replaced by the GameBoardFactory object (an abstract class which generates gameboards))
-###
-##
-# def __init__(self):  # initialize the board with Piecesd
-#     # assigns each white piece to it's initial position on the board
-#     self.board[0][0] = RookPiece        (Colour.BLACK, Position().setByXY(0,0))
-#     self.board[1][0] = KnightPiece      (Colour.BLACK, Position().setByXY(1,0))
-#     self.board[2][0] = BishopPiece      (Colour.BLACK, Position().setByXY(2,0))
-#     self.board[3][0] = QueenPiece       (Colour.BLACK, Position().setByXY(3,0))
-#     self.board[4][0] = KingPiece        (Colour.BLACK, Position().setByXY(4,0))
-#     self.board[5][0] = BishopPiece      (Colour.BLACK, Position().setByXY(5,0))
-#     self.board[6][0] = KnightPiece      (Colour.BLACK, Position().setByXY(6,0))
-#     self.board[7][0] = RookPiece        (Colour.BLACK, Position().setByXY(7,0))
-#     # assign each pawn to it's initial position on the board
-#     for i in range(8):
-#         self.board[i][1] = PawnPiece    (Colour.BLACK, Position().setByXY(i,1))
-#         self.board[i][6] = PawnPiece    (Colour.WHITE, Position().setByXY(i,6))
-#     # assign each black piece to it's initial position on the board
-#     self.board[0][7] = RookPiece        (Colour.WHITE, Position().setByXY(0,7))
-#     self.board[1][7] = KnightPiece      (Colour.WHITE, Position().setByXY(1,7))
-#     self.board[2][7] = BishopPiece      (Colour.WHITE, Position().setByXY(2,7))
-#     self.board[3][7] = QueenPiece       (Colour.WHITE, Position().setByXY(3,7))
-#     self.board[4][7] = KingPiece        (Colour.WHITE, Position().setByXY(4,7))
-#     self.board[5][7] = BishopPiece      (Colour.WHITE, Position().setByXY(5,7))
-#     self.board[6][7] = KnightPiece      (Colour.WHITE, Position().setByXY(6,7))
-#     self.board[7][7] = RookPiece        (Colour.WHITE, Position().setByXY(7,7))
-
