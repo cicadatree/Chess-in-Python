@@ -143,34 +143,41 @@ class PawnPiece(Piece):
         super().__init__(colour, location)
 
     def isValidMove(self, location : Position):
+
         dx = abs(location.x - self.location.x)
-        dy = abs(location.y - self.location.y)
 
         #make sure you're not trying to validate a move that would land on one of your own pieces
         if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
             return False
         
-        # check if you're trying to move the pawn more than 1 space in any direction
-        if dy > 1 or dx > 1:
-            return False
-
-        # check for pieces in the north direction only (no x-axis movement required per the user's inputted move)
-        if location.y < self.location.y and dx < 2:
-            if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - dy)))) is not EmptySquare:
-                return False
-            else:
-                if location.x < self.location.x:
-                    if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - dx),(self.location.y)))) is not EmptySquare:
-                        return False
-                # and then a check in the Northeast direction
-                elif location.x > self.location.x:
-                    if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + dx),(self.location.y)))) is not EmptySquare:
-                        return False
-                elif dx < 1:
+        if self.location.x == location.x: 
+            if game.whichTurn == Colour.WHITE:
+                if location.y == self.location.y - 1:
                     return True
-                return False
-        return True
-
+                elif self.location.y == 2 and location.y == 4:
+                    return True
+                else:
+                    return False
+            else:
+                if location.y == self.location.y + 1:
+                    return True
+                elif self.location.y == 7 and location.y == 5:
+                    return True
+                else:
+                    return False
+        elif dx == 1:
+            if game.whichTurn == Colour.WHITE:
+                if location.y == self.location.y - 1 and type(game.gameBoard.getPieceFromBoard(Position((location.x),(location.y)))) is not EmptySquare:
+                    return True
+                else:
+                    return False
+            else:
+                if location.y == self.location.y + 1 and type(game.gameBoard.getPieceFromBoard(Position((location.x),(location.y)))): 
+                    return True
+                else:
+                    return False
+        else:
+            return False
 
 class RookPiece(Piece):
     def __init__(self, colour, location : Position):
