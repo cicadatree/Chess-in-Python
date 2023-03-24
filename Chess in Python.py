@@ -1,4 +1,5 @@
 # TODO:
+#       * develop basic game ai to play against
 #       * evaluate for win/loss condition on each turn
 #       * evaluate for king-in-check condition during move validation
 #       * evaluate for king-in-checkmate condition
@@ -19,6 +20,22 @@ import typing
 #   dest_file = match.group(3)
 #   dest_rank = match.group(4)
 longNotationPattern = "^([a-h])([1-8])-([a-h])([1-8])$"
+
+# global utility function that can be called whenever you need to check if a King is in check. 
+def isKingCheck(colour : Colour): 
+    # Get the colour's king Position
+    for i in range(8):
+        for j in range(8):
+            if type(game.gameBoard.board[i][j]) is KingPiece and colour == game.gameBoard.board[i][j].colour:
+                correctKingPos = game.gameBoard.board[i][j].location
+
+    # Iterate over the current board, and for each Piece use the isValidMove method (passing the King's position in as the destinationLocation for the method). 
+    for i in range(8):
+        for j in range(8):
+            # If the piece being evaluated puts the king in check, then isKingCheck returns True
+            if type(game.gameBoard.board[i][j]) is not EmptySquare and game.gameBoard.board[i][j].isValidMove(correctKingPos) == True:
+                return True
+    return False
 
 # basic evaluation function which iterates over the board and calculates the given player's score
 def evaluateBoard(board):
@@ -48,7 +65,7 @@ def evaluateBoard(board):
                     whiteScore += 0
                 else:
                     return whiteScore
-            elif game.whichTurn == Colour.BLACK:
+            else:
                 piece = game.gameBoard.board[i][j]
                 if str(piece) == 'WP':
                     blackScore -= 1
@@ -124,7 +141,7 @@ class Colour(Enum):  # enumerate white and black
     __repr__ = __str__
 
 
-# Position replaces SquareLocatoin as the coordinate-conversion class.
+# Position replaces SquareLocation as the coordinate-conversion class.
 # Position is oriented in the in-memory representation's coordinate system (x,y).
 class Position: 
     def __init__(self, x=0, y=0):
@@ -201,14 +218,14 @@ class PawnPiece(Piece):
             if game.whichTurn == Colour.WHITE:
                 if location.y == self.location.y - 1:
                     return True
-                elif self.location.y == 2 and location.y == 4:
+                elif self.location.y == 6 and location.y == self.location.y - 2:
                     return True
                 else:
                     return False
             else:
                 if location.y == self.location.y + 1:
                     return True
-                elif self.location.y == 7 and location.y == 5:
+                elif self.location.y == 1 and location.y == self.location.y + 2:
                     return True
                 else:
                     return False
@@ -565,24 +582,9 @@ class GameState:
 
 game = GameState()
 
-# global utility function that can be called whenever you need to check if a King is in check. 
-def isKingCheck(colour : Colour): 
-    # Get the colour's king Position
-    for i in range(8):
-        for j in range(8):
-            if type(game.gameBoard.board[i][j]) is KingPiece and colour == game.gameBoard.board[i][j].colour:
-                correctKingPos = game.gameBoard.board[i][j].location
 
-    # Iterate over the current board, and for each Piece use the isValidMove method (passing the King's position in as the destinationLocation for the method). 
-    for i in range(8):
-        for j in range(8):
-            # If the piece being evaluated puts the king in check, then isKingCheck returns True
-            if type(game.gameBoard.board[i][j]) is not EmptySquare and game.gameBoard.board[i][j].isValidMove(correctKingPos) == True:
-                return True
-    return False
 
 def main():
-
     while True:
         print("\n")
         print("Here is the game board: \n")
