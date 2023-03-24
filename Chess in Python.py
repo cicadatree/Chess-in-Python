@@ -575,7 +575,6 @@ class GameState:
     def doTurn(self):
         # move stores the tuple (sourceLocation : Position, DestLocation : Position) representing the user's desired move
         move = askForMove(f"It's {str(game.whichTurn)}'s turn")
-        print(f"\n{str(game.whichTurn)}'s score is: {evaluateBoard(game.gameBoard.board)}")
         # movePiece(sourcePiece : Piece, destinationPosition : typing.Tuple(Position, Position))
         if not game.movePiece(game.gameBoard.getPieceFromBoard(move[0]), move[1]):
             self.doTurn()
@@ -587,6 +586,8 @@ game = GameState()
 def main():
     while True:
         print("\n")
+        print("-----------")
+        print(f"\n{str(game.whichTurn)}'s score is: {evaluateBoard(game.gameBoard.board)}")
         print("Here is the game board: \n")
         print(game.gameBoard)
         game.doTurn()
