@@ -37,12 +37,71 @@ def isKingCheck(colour : Colour):
                 return True
     return False
 
+
+################################
+####    Game AI Thoughts    ####
+################################
+
+# 1. AI makes move decisions for the opposite colour of the human player
+#
+# 2. AI makes move decisions using a for else loop that evaluates like this:
+#
+##   for (iterate over the current board):
+###     i. iterating over the current board state. On each iteration, return False if the square is an EmptySquare or the opposite colour's piece (narrow in on the remaining subset of squares; only the ai colour's pieces)
+###     ii. for each of the AI's own pieces in the iteration, evaluate all possible legal moves which the piece could make (run the pieces isValidMove method for the [i][j] board location which that piece is on)
+###     iii. create an empty list. for each legal move of the given piece, score the move based on it's outcome (using the evaluateBoard global utility function). Add points to the given move if that move results in a capture; deduct points for moves that expose the AI's own king/queen.
+###     iv. sort the list (appended with each legal move for the given piece) in descending order (from highest to lowest score)
+##   else (in the final iteration, return the best of all possible moves)
+###     i. take the first index from each piece's move score lists (which should be each pieces best move), add them to a new list 
+###     ii. sort the new list in descending order and return the higesht-scoring move among all legal moves
+
+def aiMove() -> bool:
+    #i. iterate over the board
+    for i in range(8):
+        for j in range(8):
+            # if the colour of the piece being iterated is not the ai's (i.e. is the human's colour - opposite of the ai's, or UNDEF - the EmptySquare's colour), then continue
+            if game.gameBoard.board[i][j].colour != game.whichTurn:
+                continue
+            # else the piece belongs to the ai
+            else:
+                # match case is the same as switch case (just in python). Check each piece type on each iteration. W
+                match game.gameBoard.board[i][j]:
+                    case PawnPiece():
+                        print("It is a Pawn")
+                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                        # do the move validation for all legal moves relative to the current board position ([i][j])
+                    case KingPiece():
+                        print("It is a King")
+                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                    case QueenPiece():
+                        print("It is a Queen")
+                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                    case RookPiece():
+                        print("It is a Rook")
+                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                    case KnightPiece():
+                        print("It is a Knight")
+                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                    case BishopPiece():
+                        print("It is a Bishop")
+                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                    case _:
+                        print("error - this should never happen")
+                        return False
+        else:
+            # TODO: after for loop has completed iterations, build a list of the 0th element from each pieces sorted list of legal move scores
+            return True
+
+
+
+
 # basic evaluation function which iterates over the board and calculates the given player's score
 def evaluateBoard(board):
     whiteScore = 0
     blackScore = 0
     for i in range(8):
         for j in range(8):
+
             if game.whichTurn == Colour.WHITE:
                 piece = game.gameBoard.board[i][j]
                 if str(piece) == 'WP':
@@ -516,6 +575,7 @@ class GameBoardFactory(ABC): # factory for providing new game instances. this is
         factoryBoard.board[5][0] = BishopPiece      (Colour.BLACK, Position().setByXY(5,0))
         factoryBoard.board[6][0] = KnightPiece      (Colour.BLACK, Position().setByXY(6,0))
         factoryBoard.board[7][0] = RookPiece        (Colour.BLACK, Position().setByXY(7,0))
+        
         # assign each pawn to it's initial position on the board
         for i in range(8):
             factoryBoard.board[i][1] = PawnPiece    (Colour.BLACK, Position().setByXY(i,1))
@@ -581,18 +641,27 @@ class GameState:
 
 game = GameState()
 
-
-
 def main():
+    colourChoice = input("Which colour would you like to play? Enter W for White or B for Black): ")
+    # first loop to check which colour the AI should be assigned to
+    while True:
+        if colourChoice == "W":
+            ## TODO: assign the AI (to be built) to Black
+            break
+        elif colourChoice == "B":
+            ## TODO: assign the AI (to be built) to White
+            break
+
     while True:
         print("\n")
         print("-----------")
-        print(f"\n{str(game.whichTurn)}'s score is: {evaluateBoard(game.gameBoard.board)}")
+        print(f"\n{str(game.whichTurn)}'s score is:W {evaluateBoard(game.gameBoard.board)}")
         print("Here is the game board: \n")
         print(game.gameBoard)
         game.doTurn()
         # isKingCheck(Colour.WHITE)
         game.moveToNextTurn()
+        aiMove()
         continue
 
 if __name__ == "__main__":
