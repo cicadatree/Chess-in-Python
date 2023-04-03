@@ -47,7 +47,7 @@ def evaluateBoard(board):
                 piece = game.gameBoard.board[i][j]
                 if str(piece) == 'WP':
                     whiteScore += 1
-                elif str(piece)  == 'WN' or piece == 'WB':
+                elif str(piece)  == 'WN' or str(piece) == 'WB':
                     whiteScore += 3
                 elif str(piece)  == 'WR':
                     whiteScore += 5
@@ -55,7 +55,7 @@ def evaluateBoard(board):
                     whiteScore += 9
                 elif str(piece)  == 'BP':
                     whiteScore -= 1
-                elif str(piece)  == 'BN' or piece == 'BB':
+                elif str(piece)  == 'BN' or str(piece) == 'BB':
                     whiteScore -= 3
                 elif str(piece)  == 'BR':
                     whiteScore -= 5
@@ -87,6 +87,7 @@ def evaluateBoard(board):
                     blackScore += 0
                 else:
                     return blackScore
+
                 
 # global utility function for checking if a piece move is valid
 def askForMove(message : str) -> typing.Tuple[Position, Position]:
