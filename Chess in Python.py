@@ -94,64 +94,10 @@ def aiMove() -> bool:
 
 
 
-
-# basic evaluation function which iterates over the board and calculates the given player's score
-def evaluateBoard(board):
-    whiteScore = 0
-    blackScore = 0
-    for i in range(8):
-        for j in range(8):
-            if mainGame.instance.whichTurn == Colour.WHITE:
-                piece = mainGame.instance.gameBoard.board[i][j]
-                if str(piece) == 'WP':
-                    whiteScore += 1
-                elif str(piece)  == 'WN' or str(piece) == 'WB':
-                    whiteScore += 3
-                elif str(piece)  == 'WR':
-                    whiteScore += 5
-                elif str(piece)  == 'WQ':
-                    whiteScore += 9
-                elif str(piece)  == 'BP':
-                    whiteScore -= 1
-                elif str(piece)  == 'BN' or str(piece) == 'BB':
-                    whiteScore -= 3
-                elif str(piece)  == 'BR':
-                    whiteScore -= 5
-                elif str(piece)  == 'BQ':
-                    whiteScore -= 9
-                elif str(piece) == "''":
-                    whiteScore += 0
-                else:
-                    return whiteScore
-            else:
-                piece = mainGame.instance.gameBoard.board[i][j]
-                if str(piece) == 'WP':
-                    blackScore -= 1
-                elif str(piece) == 'WN' or str(piece) == 'WB':
-                    blackScore -= 3
-                elif str(piece) == 'WR':
-                    blackScore -= 5
-                elif str(piece) == 'WQ':
-                    blackScore -= 9
-                elif str(piece) == 'BP':
-                    blackScore += 1
-                elif str(piece) == 'BN' or str(piece) == 'BB':
-                    blackScore += 3
-                elif str(piece) == 'BR':
-                    blackScore += 5
-                elif str(piece) == 'BQ':
-                    blackScore += 9
-                elif str(piece) == "''":
-                    blackScore += 0
-                else:
-                    return blackScore
-
-                
-# global utility function for checking if a piece move is valid
-def askForMove(message : str) -> typing.Tuple[Position, Position]:
+def askForMove(message : str) -> typing.Tuple[Position, Position]: # global utility function for checking if a piece move is valid
     # ask the user to input the X position for the piece they want to move
     print(message)
-    print(f"{str(mainGame.instance.whichTurn)}'s score is: {evaluateBoard(mainGame.instance.gameBoard.board)}\n")
+    print(f"{str(mainGame.instance.whichTurn)}'s score is: {evaluateBoard()}\n")
     gotValidMove = False
     while not gotValidMove:
         userInput = input("Enter your move in Long Chess Notation (eg., b1-a3): ")
@@ -184,8 +130,7 @@ def askForMove(message : str) -> typing.Tuple[Position, Position]:
         print(f"{str(userPieceSelection)} - Wrong colour - try again ")
 
 
-# Enum Class for Colour inheritance
-class Colour(Enum):  # enumerate white and black
+class Colour(Enum):  # Enum Class for Colour inheritance
     WHITE = auto()
     BLACK = auto()
     UNDEF = auto()
@@ -201,9 +146,7 @@ class Colour(Enum):  # enumerate white and black
     __repr__ = __str__
 
 
-# Position replaces SquareLocation as the coordinate-conversion class.
-# Position is oriented in the in-memory representation's coordinate system (x,y).
-class Position: 
+class Position: # Position is oriented in the in-memory representation's coordinate system (x,y).
     def __init__(self, x=0, y=0):
         self.x = x
         self.y = y 
@@ -261,7 +204,7 @@ class EmptySquare(Piece):
     def isValidMove(self, location):
         return False
 
-# TODO: pawn movement is weird. I need to fix it. 
+
 class PawnPiece(Piece):
     def __init__(self, colour, location : Position):
         super().__init__(colour, location)
@@ -302,6 +245,7 @@ class PawnPiece(Piece):
                     return False
         else:
             return False
+
 
 class RookPiece(Piece):
     def __init__(self, colour, location : Position):
@@ -645,8 +589,58 @@ class NewGame:
     def __init__(self):
         self.instance = GameState()
 
+
 mainGame = NewGame()
 
+def evaluateBoard(): # basic evaluation function which iterates over the board and calculates the given player's score
+    whiteScore = 0
+    blackScore = 0
+    for i in range(8):
+        for j in range(8):
+            if mainGame.instance.whichTurn == Colour.WHITE:
+                piece = mainGame.instance.gameBoard.board[i][j]
+                if str(piece) == 'WP':
+                    whiteScore += 1
+                elif str(piece)  == 'WN' or str(piece) == 'WB':
+                    whiteScore += 3
+                elif str(piece)  == 'WR':
+                    whiteScore += 5
+                elif str(piece)  == 'WQ':
+                    whiteScore += 9
+                elif str(piece)  == 'BP':
+                    whiteScore -= 1
+                elif str(piece)  == 'BN' or str(piece) == 'BB':
+                    whiteScore -= 3
+                elif str(piece)  == 'BR':
+                    whiteScore -= 5
+                elif str(piece)  == 'BQ':
+                    whiteScore -= 9
+                elif str(piece) == "''":
+                    whiteScore += 0
+                else:
+                    return whiteScore
+            else:
+                piece = mainGame.instance.gameBoard.board[i][j]
+                if str(piece) == 'WP':
+                    blackScore -= 1
+                elif str(piece) == 'WN' or str(piece) == 'WB':
+                    blackScore -= 3
+                elif str(piece) == 'WR':
+                    blackScore -= 5
+                elif str(piece) == 'WQ':
+                    blackScore -= 9
+                elif str(piece) == 'BP':
+                    blackScore += 1
+                elif str(piece) == 'BN' or str(piece) == 'BB':
+                    blackScore += 3
+                elif str(piece) == 'BR':
+                    blackScore += 5
+                elif str(piece) == 'BQ':
+                    blackScore += 9
+                elif str(piece) == "''":
+                    blackScore += 0
+                else:
+                    return blackScore
 
 def main():
     colourChoice = input("Which colour would you like to play? Enter W for White or B for Black): ")
