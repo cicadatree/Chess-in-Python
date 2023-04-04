@@ -60,31 +60,31 @@ def aiMove() -> bool:
     for i in range(8):
         for j in range(8):
             # if the colour of the piece being iterated is not the ai's (i.e. is the human's colour - opposite of the ai's, or UNDEF - the EmptySquare's colour), then continue
-            if game.gameBoard.board[i][j].colour != game.whichTurn:
+            if mainGame.instance.gameBoard.board[i][j].colour != mainGame.instance.whichTurn:
                 continue
             # else the piece belongs to the ai
             else:
                 # match case is the same as switch case (just in python). Check each piece type on each iteration. W
-                match game.gameBoard.board[i][j]:
+                match mainGame.instance.gameBoard.board[i][j]:
                     case PawnPiece():
                         print("It is a Pawn")
-                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                        mainGame.instance.gameBoard.board[i][j].isValidMove(Position(i,j))
                         # do the move validation for all legal moves relative to the current board position ([i][j])
                     case KingPiece():
                         print("It is a King")
-                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                        mainGame.instance.gameBoard.board[i][j].isValidMove(Position(i,j))
                     case QueenPiece():
                         print("It is a Queen")
-                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                        mainGame.instance.gameBoard.board[i][j].isValidMove(Position(i,j))
                     case RookPiece():
                         print("It is a Rook")
-                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                        mainGame.instance.gameBoard.board[i][j].isValidMove(Position(i,j))
                     case KnightPiece():
                         print("It is a Knight")
-                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                        mainGame.instance.gameBoard.board[i][j].isValidMove(Position(i,j))
                     case BishopPiece():
                         print("It is a Bishop")
-                        game.gameBoard.board[i][j].isValidMove(Position(i,j))
+                        mainGame.instance.gameBoard.board[i][j].isValidMove(Position(i,j))
                     case _:
                         print("error - this should never happen")
                         return False
