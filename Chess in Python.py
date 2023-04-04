@@ -26,14 +26,14 @@ def isKingCheck(colour : Colour):
     # Get the colour's king Position
     for i in range(8):
         for j in range(8):
-            if type(game.gameBoard.board[i][j]) is KingPiece and colour == game.gameBoard.board[i][j].colour:
-                correctKingPos = game.gameBoard.board[i][j].location
+            if type(mainGame.instance.gameBoard.board[i][j]) is KingPiece and colour == mainGame.instance.gameBoard.board[i][j].colour:
+                correctKingPos = mainGame.instance.gameBoard.board[i][j].location
 
     # Iterate over the current board, and for each Piece use the isValidMove method (passing the King's position in as the destinationLocation for the method). 
     for i in range(8):
         for j in range(8):
             # If the piece being evaluated puts the king in check, then isKingCheck returns True
-            if type(game.gameBoard.board[i][j]) is not EmptySquare and game.gameBoard.board[i][j].isValidMove(correctKingPos) == True:
+            if type(mainGame.instance.gameBoard.board[i][j]) is not EmptySquare and mainGame.instance.gameBoard.board[i][j].isValidMove(correctKingPos) == True:
                 return True
     return False
 
@@ -43,8 +43,8 @@ def evaluateBoard(board):
     blackScore = 0
     for i in range(8):
         for j in range(8):
-            if game.whichTurn == Colour.WHITE:
-                piece = game.gameBoard.board[i][j]
+            if mainGame.instance.whichTurn == Colour.WHITE:
+                piece = mainGame.instance.gameBoard.board[i][j]
                 if str(piece) == 'WP':
                     whiteScore += 1
                 elif str(piece)  == 'WN' or str(piece) == 'WB':
@@ -66,7 +66,7 @@ def evaluateBoard(board):
                 else:
                     return whiteScore
             else:
-                piece = game.gameBoard.board[i][j]
+                piece = mainGame.instance.gameBoard.board[i][j]
                 if str(piece) == 'WP':
                     blackScore -= 1
                 elif str(piece) == 'WN' or str(piece) == 'WB':
@@ -93,6 +93,7 @@ def evaluateBoard(board):
 def askForMove(message : str) -> typing.Tuple[Position, Position]:
     # ask the user to input the X position for the piece they want to move
     print(message)
+    print(f"{str(mainGame.instance.whichTurn)}'s score is: {evaluateBoard(mainGame.instance.gameBoard.board)}\n")
     gotValidMove = False
     while not gotValidMove:
         userInput = input("Enter your move in Long Chess Notation (eg., b1-a3): ")
@@ -109,11 +110,11 @@ def askForMove(message : str) -> typing.Tuple[Position, Position]:
 
         # userSelection stores the return value for the getPieceFromBoard() method from the ChessBoard Class. 
         # The .getPieceFromBoard() method takes a Position as it's only argument, and returns the piece contained by the (x, y) board position: (_x property, _y property) of the Position argument
-        userPieceSelection = game.gameBoard.getPieceFromBoard(sourceLocation)
+        userPieceSelection = mainGame.instance.gameBoard.getPieceFromBoard(sourceLocation)
         
         # check if the piece the user wants to move is their colour
-        if userPieceSelection.colour == game.whichTurn:
-            game.gameBoard
+        if userPieceSelection.colour == mainGame.instance.whichTurn:
+            mainGame.instance.gameBoard
             # return the Positions of the user's sourceLocation and destLocation
             return (sourceLocation, destLocation)
 
@@ -212,11 +213,11 @@ class PawnPiece(Piece):
         dx = abs(location.x - self.location.x)
 
         #make sure you're not trying to validate a move that would land on one of your own pieces
-        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+        if mainGame.instance.gameBoard.board[location.x][location.y].colour == mainGame.instance.whichTurn:
             return False
         
         if self.location.x == location.x: 
-            if game.whichTurn == Colour.WHITE:
+            if mainGame.instance.whichTurn == Colour.WHITE:
                 if location.y == self.location.y - 1:
                     return True
                 elif self.location.y == 6 and location.y == self.location.y - 2:
@@ -231,13 +232,13 @@ class PawnPiece(Piece):
                 else:
                     return False
         elif dx == 1:
-            if game.whichTurn == Colour.WHITE:
-                if location.y == self.location.y - 1 and type(game.gameBoard.getPieceFromBoard(Position((location.x),(location.y)))) is not EmptySquare:
+            if mainGame.instance.whichTurn == Colour.WHITE:
+                if location.y == self.location.y - 1 and type(mainGame.instance.gameBoard.getPieceFromBoard(Position((location.x),(location.y)))) is not EmptySquare:
                     return True
                 else:
                     return False
             else:
-                if location.y == self.location.y + 1 and type(game.gameBoard.getPieceFromBoard(Position((location.x),(location.y)))): 
+                if location.y == self.location.y + 1 and type(mainGame.instance.gameBoard.getPieceFromBoard(Position((location.x),(location.y)))): 
                     return True
                 else:
                     return False
@@ -253,7 +254,7 @@ class RookPiece(Piece):
         dy = abs(location.y - self.location.y)
 
         #make sure you're not trying to validate a move that would land on one of your own pieces
-        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+        if mainGame.instance.gameBoard.board[location.x][location.y].colour == mainGame.instance.whichTurn:
             return False
 
         # Check if the move is on the cardinal
@@ -263,22 +264,22 @@ class RookPiece(Piece):
         # Check for pieces in the east direction
         if location.x > self.location.x:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare:
                     return False
         # Check for pieces in the west direction
         elif location.x < self.location.x:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i), (self.location.y)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x - i), (self.location.y)))) is not EmptySquare:
                     return False
         # Check for pieces in the south direction
         elif location.y > self.location.y:
             for i in range(1, dy):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
                     return False
         # Check for pieces in the north direction
         elif location.y < self.location.y:
             for i in range(1, dy):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
                     return False
         return True
 
@@ -292,7 +293,7 @@ class BishopPiece(Piece):
         dy = abs(location.y - self.location.y)
 
         #make sure you're not trying to validate a move that would land on one of your own pieces
-        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+        if mainGame.instance.gameBoard.board[location.x][location.y].colour == mainGame.instance.whichTurn:
             return False
 
         # Check if the move is on the diagonal
@@ -302,22 +303,22 @@ class BishopPiece(Piece):
         # Check for pieces in the northeast direction
         if location.x > self.location.x and location.y > self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check for pieces in the northwest direction
         elif location.x < self.location.x and location.y > self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check for pieces in the southeast direction
         elif location.x > self.location.x and location.y < self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
                     return False
         # Check for pieces in the southwest direction
         elif location.x < self.location.x and location.y < self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
                     return False
         return True
 
@@ -331,7 +332,7 @@ class KnightPiece(Piece):
         y = self.location.y
 
         #make sure you're not trying to validate a move that would land on one of your own pieces
-        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+        if mainGame.instance.gameBoard.board[location.x][location.y].colour == mainGame.instance.whichTurn:
             return False
 
         # list of all possible moves
@@ -343,7 +344,7 @@ class KnightPiece(Piece):
         # check if target location is out of bounds
         if (location.x < 0 and location.x > 7) and (location.y < 0 and location.y > 7):
             return False
-        if game.gameBoard.getPieceFromBoard(location).getColour() == game.whichTurn:
+        if mainGame.instance.gameBoard.getPieceFromBoard(location).getColour() == mainGame.instance.whichTurn:
             return False
         return True
 
@@ -357,7 +358,7 @@ class KingPiece(Piece):
         dy = abs(location.y - self.location.y)
 
         #make sure you're not trying to validate a move that would land on one of your own pieces
-        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+        if mainGame.instance.gameBoard.board[location.x][location.y].colour == mainGame.instance.whichTurn:
             return False
 
         if dx > 1 or dy > 1:
@@ -365,42 +366,42 @@ class KingPiece(Piece):
         # Check for pieces in the southeast direction
         if location.x > self.location.x and location.y > self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check for pieces in the southwest direction
         elif location.x < self.location.x and location.y > self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check for pieces in the northeast direction
         elif location.x > self.location.x and location.y < self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
                     return False
         # Check for pieces in the northwest direction
         elif location.x < self.location.x and location.y < self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
                     return False
         # Check for pieces in the east direction
         elif location.x > self.location.x:
             for i in range(1):
-                if (type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare):
+                if (type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare):
                     return False
         # Check for pieces in the west direction
         elif location.x < self.location.x:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((location.x - i), (location.y)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((location.x - i), (location.y)))) is not EmptySquare:
                     return False
         # Check for pieces in the south direction
         elif location.y > self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
                     return False
         # Check for pieces in the north direction
         elif location.y < self.location.y:
             for i in range(1):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
                     return False
         return True
 
@@ -414,7 +415,7 @@ class QueenPiece(Piece):
         dy = abs(location.y - self.location.y)
 
         #make sure you're not trying to validate a move that would land on one of your own pieces
-        if game.gameBoard.board[location.x][location.y].colour == game.whichTurn:
+        if mainGame.instance.gameBoard.board[location.x][location.y].colour == mainGame.instance.whichTurn:
             return False
 
         # make sure that the destination location is on a cardinal (diagonal) line of sight
@@ -424,42 +425,42 @@ class QueenPiece(Piece):
         # Check for pieces in the southeast direction
         if location.x > self.location.x and location.y > self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check for pieces in the southwest direction
         elif location.x < self.location.x and location.y > self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y + i)))) is not EmptySquare:
                     return False
         # Check for pieces in the northeast direction
         elif location.x > self.location.x and location.y < self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y - i)))) is not EmptySquare:
                     return False
         # Check for pieces in the northwest direction
         elif location.x < self.location.x and location.y < self.location.y:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x - i),(self.location.y - i)))) is not EmptySquare:
                     return False
         # Check for pieces in the east direction
         elif location.x > self.location.x:
             for i in range(1, dx):
-                if (type(game.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare):
+                if (type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x + i),(self.location.y)))) is not EmptySquare):
                     return False
         # Check for pieces in the west direction
         elif location.x < self.location.x:
             for i in range(1, dx):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x - i), (self.location.y)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x - i), (self.location.y)))) is not EmptySquare:
                     return False
         # Check for pieces in the south direction
         elif location.y > self.location.y:
             for i in range(1, dy):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y + i)))) is not EmptySquare:
                     return False
         # Check for pieces in the north direction
         elif location.y < self.location.y:
             for i in range(1, dy):
-                if type(game.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
+                if type(mainGame.instance.gameBoard.getPieceFromBoard(Position((self.location.x), (self.location.y - i)))) is not EmptySquare:
                     return False
         return True
 
@@ -481,7 +482,7 @@ class ChessBoard:
             # list of all moves that are legal inside the board
             inBoundsDestinationSquares = filter(lambda i : (i[0] >= 0 and i[0] <= 7) and (i[1] >= 0 and i[1] <= 7), destinationSquares)
             # list of all in-bounds moves that are moving into an EmptySquare not already occupied by another piece of the same colour
-            validInBoundsDestinationSquares = filter(lambda i : (isinstance(self.board[i[0]][i[1]], EmptySquare)) and (self.board[i[0]][i[1]].getColour() != game.whichTurn), inBoundsDestinationSquares)
+            validInBoundsDestinationSquares = filter(lambda i : (isinstance(self.board[i[0]][i[1]], EmptySquare)) and (self.board[i[0]][i[1]].getColour() != mainGame.instance.whichTurn), inBoundsDestinationSquares)
             return validInBoundsDestinationSquares
 
     def __str__(self):  # redefine the __str__ special function to print the chess board out with new lines after every outer list element
@@ -552,12 +553,12 @@ class GameState:
     def movePiece(self, sourcePiece : Piece, destinationPosition : Position):
         if sourcePiece.isValidMove(destinationPosition):
             # first, take the sourcePiece off the board (by replacing it with an EmptySquare)
-            game.gameBoard.board[sourcePiece.location.x][sourcePiece.location.y] = EmptySquare()
+            mainGame.instance.gameBoard.board[sourcePiece.location.x][sourcePiece.location.y] = EmptySquare()
             # next, assign the location of the source piece to the destination position (this is in the in-memory representation of the source piece)
             sourcePiece.location = destinationPosition
             # finally, update the in-memory representation of the board by putting the source piece on the destination position.
             # note that this will also destroy any underlying piece on the destination square. 
-            game.gameBoard.board[destinationPosition.x][destinationPosition.y] = sourcePiece
+            mainGame.instance.gameBoard.board[destinationPosition.x][destinationPosition.y] = sourcePiece
             # TODO: based on the note above, I will need to update the gamestate with the lost pieces which are captured (when they are on the destination square). 
             # I'll need to do a test on whether the destination square is occupied during this method.
             return True
@@ -575,25 +576,28 @@ class GameState:
 
     def doTurn(self):
         # move stores the tuple (sourceLocation : Position, DestLocation : Position) representing the user's desired move
-        move = askForMove(f"It's {str(game.whichTurn)}'s turn")
+        move = askForMove(f"It's {str(mainGame.instance.whichTurn)}'s turn")
         # movePiece(sourcePiece : Piece, destinationPosition : typing.Tuple(Position, Position))
-        if not game.movePiece(game.gameBoard.getPieceFromBoard(move[0]), move[1]):
+        if not mainGame.instance.movePiece(mainGame.instance.gameBoard.getPieceFromBoard(move[0]), move[1]):
             self.doTurn()
 
-game = GameState()
 
+class NewGame:
+    def __init__(self):
+        self.instance = GameState()
+
+mainGame = NewGame()
 
 
 def main():
     while True:
         print("\n")
         print("-----------")
-        print(f"\n{str(game.whichTurn)}'s score is: {evaluateBoard(game.gameBoard.board)}")
         print("Here is the game board: \n")
-        print(game.gameBoard)
-        game.doTurn()
+        print(mainGame.instance.gameBoard)
+        mainGame.instance.doTurn()
         # isKingCheck(Colour.WHITE)
-        game.moveToNextTurn()
+        mainGame.instance.moveToNextTurn()
         continue
 
 if __name__ == "__main__":
