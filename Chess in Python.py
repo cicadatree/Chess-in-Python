@@ -634,7 +634,7 @@ class NewGame:
         print(self.state.gameBoard)
         self.doTurn()
         self.moveToNextTurn()
-
+##### NOTE - Apr 8, 2023
 ## I HAVE A GAMESTATE. APPARENTLY I WILL HAVE A SPECIAL KEYWORD IN MY APPLICATION LOOP.
 ## APPARENTLY I WILL NOW HOW A LOOP FOR MY GAMESTATE, AND A LOOP FOR MY APPLICATION.
 ## THE LOOP FOR MY GAMESTATE HOLDS ALL THE LOGIC FOR THE GAME (I.E. main())
@@ -643,21 +643,26 @@ class NewGame:
 ## ANOTHER KEYWORD MAY BE "SAVE" (WHICH WILL SAVE THE CURRENT GAMESTATE TO A NEW VARIABLE, AND EXIT TO MENU)
 ## ANOTHER KEYWORD MAY BE "NEW GAME" (WHICH WILL START A NEW GAME IN A FRESH INSTANCE)
 
-def main():
-    # this is where the "application loop" is located (the top-level while loop (and only) for the application will exist)
-    exit = False
-    mainGame = NewGame()
-    userInput = input("Welcome to Chess in Python. To start a new game, type: NEW. To quit, type: QUIT. ")
-    while not exit:
-        match userInput:
-            case "NEW":
-                mainGame.gameLoop()
-            case "QUIT":
-                exit = True
-            case __:
-                print("that is not a valid input - try again")
-                
+#### NOTE - Apr 10, 2023
+# check if game is running (if running, the game can be saved)
+# the application is the executive layer. my code needs to be updated so that the application layer receives the user input before the game does. 
+# if the user input is an application keyword (such as "SAVE" or "QUIT"), then execute those functions. 
+# Otherwise, pass whatever the user's input was (presumably their move in long algebraic notation) to the game loop for processing in the game.
+class ChessApp():
+    def __init__(self):
+        self.exit = False
+        self.isGameRunning = False
+        while not self.exit:
+            match self.isGameRunning:
+                case True: # this is the "game" case (the game is running, so go to the game)
+                    self.mainGame.gameLoop()
+                case False: # this is the "menu" case (the game is not running, so go to the menu)
+                    self.userInput = input("Welcome to Chess in Python. To start a new game, type: NEW. ")
+                    match self.userInput:
+                        case "NEW":
+                            self.mainGame = NewGame()
+                            self.isGameRunning = True
 
 if __name__ == "__main__":
-    main()
+    main = ChessApp()
 
